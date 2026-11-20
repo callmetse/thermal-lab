@@ -6,9 +6,17 @@ console on the control host.
 
 ## ⚠️ Project Status
 
-This repository is a **review snapshot of the source**, not a released system. The local test
-suites pass, but no device has been verified to run this revision. Treat deployment scripts as
-historical material and re-check every host path before use.
+This repository is the **review tree for the deployed build**: `vision/`, `acoustic/` and
+`environment/` are the code the Raspberry Pi runs.
+
+- **Verified 2026-11-20 22:16**: seven long-running services started after the last write of their
+  package, the Pi's 50 source files are unchanged since capture, 330 local tests pass (12 skipped,
+  reasons in code) and CI is green.
+- **Still different**: the GPU differs in `worker.py` and `llm.py`; the control host runs an older
+  base build. Both variants are kept under `deployments/`.
+- The ESP32 exists only as an ESPHome definition (not built or flashed); deployment scripts are
+  historical — re-check host paths.
+- Hosts, accounts and ports are example values, so a local copy cannot reach the real devices.
 
 ## 🚀 Overview
 
@@ -196,7 +204,7 @@ manifests.
 | `vision/tools/deploy_ui_d.py` | withheld: contains a plaintext console password and a local secret-store path | excluded rather than shipping a working credential |
 | GPU and control run variants | the GPU differs in `worker.py` and `llm.py`; the control host runs an older base build with its own edits | snapshots and the hash table are in `docs/deployments-20261120.md` |
 | Front-end bench not current | repository `page.html` is a 2026-11-16 local edit (52 KB) while both devices serve the 2026-11-03 page (35 KB); the control host's `flows-native.json` (2026-11-17, 102 KB) is newer than the repository copy | neither tree is authoritative for every file; see `docs/frontend-20261120.md` |
-| Vision build drift | four deployments, five `worker.py` builds: the Pi and GPU share the extended package except `worker.py`/`llm.py`, the control host runs an older base build | reconcile before any overlay; see `docs/deployments-20261120.md` |
+| Vision build drift | repository = Pi build; the GPU differs in `worker.py`/`llm.py`; the control host runs an older base build. Four `worker.py` builds remain in the records | reconcile before any overlay; see `docs/deployments-20261120.md` |
 
 ## 🔍 Evidence Status
 

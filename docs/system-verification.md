@@ -1,9 +1,10 @@
 # System verification and remaining checks
 
 Scope: what was executed locally on 2026-11-20 against the tree in this branch, what the
-result was, and which parts of the system remain unverified. The tests prove the imported
-source is internally consistent and runs on a workstation. They do not prove that any
-device runs this revision.
+result was, and which parts of the system remain unverified. The tests prove the source is
+internally consistent and runs on a workstation. A separate runtime check the same evening
+confirmed that the long-running services execute these bytes — see
+[runtime-verification.md](runtime-verification.md).
 
 ## Local test evidence
 
@@ -73,10 +74,11 @@ and the control host was not reached, so the cloud tiers remain uncompared.
   and `lab/common.py` match none of the copies in this tree. The deployed vision Supervisor
   configuration also runs a `dataset-api` program that has no counterpart under `vision/deploy/`.
 
-This repository is therefore a local source snapshot, not the deployed revision. The captured
-device tree is archived under [`deployments/pi-20261120/`](../deployments/pi-20261120/) and the
-full comparison, including every differing file, is in
-[`pi-diff-20261120.md`](pi-diff-20261120.md). Capturing the cloud tiers is still outstanding.
+At the time of that comparison the repository still carried the base build; it now carries the Pi
+build (see [deployed-baseline.md](deployed-baseline.md)). The device tree is archived under
+[`deployments/pi-20261120/`](../deployments/pi-20261120/) and the per-file record is in
+[`pi-diff-20261120.md`](pi-diff-20261120.md). GPU and control were captured later — see
+[deployments-20261120.md](deployments-20261120.md).
 
 ## Cloud tiers (captured 2026-11-20)
 
