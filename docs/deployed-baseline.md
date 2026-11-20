@@ -5,7 +5,7 @@ trees now hold what the devices actually run:
 
 | Path | Now holds | Source |
 |---|---|---|
-| `vision/lab/` | the extended vision package (28 modules) | the Pi's `/home/pi/abc20261102/lab`, byte-for-byte apart from the host/account substitutions |
+| `vision/lab/` | the extended vision package (28 modules) | the Pi's `/home/pi/abc20261102/lab`, with `worker.py` and `llm.py` taken from the GPU instance — the latest pair, written 2026-11-18 17:03 |
 | `acoustic/` | the audio modules that run on the Pi | `/home/pi/mm_audio_v1` |
 | `environment/` | the environment gateway and its long-term module | `/home/pi/env_sensor_v1` (including `env_longterm.py`, which the deployed gateway imports) |
 
@@ -13,6 +13,10 @@ Read the code exactly as it runs; the `deployments/` archives remain the read-on
 and the sanitised device snapshots are still the reference for "what was on disk at capture time".
 
 ## What was archived
+
+The GPU's `worker.py` and `llm.py` are three hours newer than the Pi's and everything else is
+identical, so the repository now carries the newest observed build; the Pi lags by exactly those two
+files, and its own pair stays in `deployments/pi-20261120/`.
 
 The previous base trees are kept for comparison under `revisions/vision-base-20261120/`:
 

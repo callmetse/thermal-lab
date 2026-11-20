@@ -6,16 +6,17 @@ console on the control host.
 
 ## ⚠️ Project Status
 
-This repository is the **review tree for the deployed build**: `vision/`, `acoustic/` and
-`environment/` are the code the Raspberry Pi runs.
+This repository is the **review tree for the deployed build**, and its vision package is the newest
+one observed: `worker.py` and `llm.py` come from the GPU instance (written 2026-11-18 17:03), the rest
+of `vision/lab/` is identical on the Pi and the GPU.
 
 - **Verified 2026-11-20 22:16**: seven long-running services started after the last write of their
   package, the Pi's 50 source files are unchanged since capture, 330 local tests pass (12 skipped,
   reasons in code) and CI is green.
-- **Still different**: the GPU differs in `worker.py` and `llm.py` — its full tree is at
-  [`deployments/gpu-20261120/`](deployments/gpu-20261120/); the control host runs an older base build
-  — its full tree is at [`deployments/control-20261120/`](deployments/control-20261120/). The Pi tree
-  is [`deployments/pi-20261120/`](deployments/pi-20261120/).
+- **Still different**: the Pi runs the previous pair of `worker.py`/`llm.py` (written 10:55) — its full
+  tree is [`deployments/pi-20261120/`](deployments/pi-20261120/); the control host runs an older base
+  build — [`deployments/control-20261120/`](deployments/control-20261120/); the GPU tree that matches
+  this repository is [`deployments/gpu-20261120/`](deployments/gpu-20261120/).
 - The ESP32 exists only as an ESPHome definition (not built or flashed); deployment scripts are
   historical — re-check host paths.
 - Hosts, accounts and ports are example values, so a local copy cannot reach the real devices.

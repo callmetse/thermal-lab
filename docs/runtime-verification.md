@@ -55,9 +55,9 @@ written after the process started.
   still have loaded the same bytes.
 - Services that are not long-running (cron jobs, one-shot deploy scripts, the ESP32 firmware) were not
   covered.
-- The **repository's base tree is still not the deployed tree** — see
-  [deployments-20261120.md](deployments-20261120.md). What is verified here is that each tier runs its
-  own captured snapshot, not that all tiers run the same code.
+- The repository now matches the **GPU** build; the Pi lags by two files and the control host runs an
+  older base build — see [deployments-20261120.md](deployments-20261120.md). What is verified here is
+  that each tier runs its own captured snapshot, not that all tiers run one identical tree.
 
 ## Reproducing
 

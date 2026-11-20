@@ -103,7 +103,7 @@ def main():
                     if v["op"] == "start":
                         cursor.start(v["run_id"])
                         active["run_id"] = v["run_id"]
-                    elif active["run_id"] == v["run_id"]:
+                    elif v["op"] == "stop" and active["run_id"] == v.get("run_id"):
                         active["run_id"] = None
             elif v.get("run_id") == active["run_id"] and cursor.accept(v):
                 latest_put(items, v)

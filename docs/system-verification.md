@@ -138,7 +138,7 @@ only the first two, so the generator output is the older variant and the archive
 |---|---|
 | Source trees import and their test suites pass locally | Verified on 2026-11-20, as above |
 | Repository contains no credential found by pattern scan | Verified with gitleaks 8.30.1 on the working tree and the commit; no leaks reported |
-| Source equals deployed revision | **True for the Pi** since the primary trees were replaced with the Pi build (vision, audio, environment). The GPU differs in `worker.py` and `llm.py`; the control host runs an older base build. |
+| Source equals deployed revision | **True for the GPU**: the repository's vision package matches it, including the newest `worker.py` and `llm.py`. The Pi runs the previous pair of those two files; the control host runs an older base build. |
 | Deployed revision equals running process | **Verified for seven services on 2026-11-20 22:16**: each process started 14–239 h after the last write of its package, and the Pi files are unchanged since capture — see [runtime-verification.md](runtime-verification.md) |
 | Pi audio capture, ESP32 firmware build, Node-RED flow import, GPU cloud inference | Pi read-only inspected on 2026-11-20 (files and Supervisor programs); capture, firmware build, flow import and cloud runtime still unverified |
 

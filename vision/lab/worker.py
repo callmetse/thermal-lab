@@ -369,18 +369,34 @@ class Worker:
         active = None
         cancel = threading.Event()
         current = None
+        pending_cloud_start = None
         completed = set()
         while not self.stop.is_set():
+            pending_ready = pending_cloud_start is not None and not current.is_alive()
             try:
-                cmd = self.commands.get(timeout=.2)
+                cmd = self.commands.get(timeout=0 if pending_ready else .2)
             except queue.Empty:
-                continue
+                if not pending_ready:
+                    continue
+                cmd, pending_cloud_start = pending_cloud_start, None
             if cmd["op"] == "stop":
+                if (pending_cloud_start is not None and cmd["run_id"] == pending_cloud_start["run_id"]
+                        and cmd.get("generation") in (None, pending_cloud_start.get("generation"))):
+                    pending_cloud_start = None
                 if active == cmd["run_id"] and (cmd.get("generation") in (None, self.generation)):
                     self.set_session('stopping')
                     cancel.set()
                 continue
-            if cmd["run_id"] in completed or (current and current.is_alive()):
+            if cmd["run_id"] in completed:
+                continue
+            if pending_cloud_start is not None or (current and current.is_alive()):
+                generation = cmd.get("generation")
+                pending_generation = (pending_cloud_start or {}).get("generation", self.generation)
+                if self.role == "cloud" and type(generation) is int and generation > pending_generation:
+                    # The edge can finish replay before the cloud has drained the prior run.
+                    # Retain the newer start while the cloud worker closes that run.
+                    pending_cloud_start = cmd
+                    cancel.set()
                 continue
             active = cmd["run_id"]
             self.generation = cmd.get("generation", self.generation)

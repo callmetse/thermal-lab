@@ -23,16 +23,16 @@ modified. Sanitised archives live under `deployments/`.
 - **Control host** — `abc20261102-broker`, `abc20261102-console` and `abc20261102-gpu-ensure.timer`
   are active; `:28880` is listening; Node-RED user dir `/srv/abc20261102/state/node-red`.
 
-## Vision package: the repository now carries the Pi build
+## Vision package: the repository carries the newest build
 
-`vision/lab/` holds the Pi's deployed build (28 modules), copied from the sanitised device snapshot.
-The GPU runs the same build apart from two files; the control host runs an older base build. Hashes
-below are of the sanitised copies, first 12 hex digits:
+`vision/lab/` has 28 modules. `worker.py` and `llm.py` are the GPU instance's versions (written
+2026-11-18 17:03:42, the latest observed); every other module is byte-identical on the Pi and the GPU.
+Hashes below are of the sanitised copies, first 12 hex digits:
 
-| File | Repository (Pi) | GPU | Control |
+| File | Repository (= GPU) | Pi | Control |
 |---|---|---|---|
-| `worker.py` | `c394fad5ed7f` | `19030c2a0453` | `9d48941e3e21` |
-| `llm.py` | `48f5d2f2361d` | `19e20583a5f1` | `48f5d2f2361d` |
+| `worker.py` | `19030c2a0453` | `c394fad5ed7f` | `9d48941e3e21` |
+| `llm.py` | `19e20583a5f1` | `48f5d2f2361d` | `48f5d2f2361d` |
 | `common.py` | `30d0d36e6f5d` | `30d0d36e6f5d` | `f48d407aa1ee` |
 | `local_preview.py` | `6201c680a5a6` | `6201c680a5a6` | `f401854d6ff7` |
 | `presentation.py` | `c9af91c865a8` | `c9af91c865a8` | `ff44bad2376a` |
@@ -46,18 +46,15 @@ All other modules are identical across the three tiers.
 
 Reading:
 
-- **The repository and the Pi are the same build.** The GPU differs in `worker.py` and `llm.py`.
-- **The control host runs an older base build**: it holds ten modules, five of which differ from the
-  current tree, and it lacks the extended modules entirely.
-- **`worker.py` has four distinct builds in these records**: repository/Pi `c394fad5`, GPU
-  `19030c2a`, control `9d48941e`, and the 2026-11-16 GPU baseline `c40d2040`. The old base build
-  (`fe10e1e8`) is archived at `revisions/vision-base-20261120/`.
+- **The repository matches the GPU exactly.** The Pi runs the previous pair of `worker.py` and
+  `llm.py` (written 10:55 the same day, three hours earlier); nothing else differs between them.
+- **The control host runs an older base build**: ten modules, five of which differ from the current
+  tree, and it lacks the extended modules entirely.
+- **`worker.py` has four builds in the records**: repository/GPU `19030c2a`, Pi `c394fad5`, control
+  `9d48941e`, and the 2026-11-16 GPU baseline `c40d2040`. The old base build (`fe10e1e8`) is
+  archived at `revisions/vision-base-20261120/`.
 - **`revisions/vision-extension/`** matches the deployed build for 18 of 28 modules; the exception is
   `worker.py`.
-
-Between the first capture (21:37) and the re-capture (22:32) the Pi's `deploy/supervisord.ini` changed its
-`media-tunnel` command from `-p 12434` to `-p 31380` (the GPU instance had moved); the archive keeps the
-re-captured file with the SSH port normalised to `22`.
 
 ## Front end
 
