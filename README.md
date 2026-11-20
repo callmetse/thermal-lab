@@ -73,6 +73,8 @@ thermal-lab/
 │   ├── gpu-20261120/            # GPU instance source capture (extended vision package)
 │   └── control-20261120/        # Control-host code, Node-RED flows, units and console files
 ├── docs/
+│   ├── architecture.md          # the four A/B/C/D layouts, topic contract, learning loop
+│   ├── figures/                 # rendered diagrams
 │   ├── system-verification.md   # test evidence, worker identities, gaps
 │   ├── deployments-20261120.md  # what each tier runs; four-way vision comparison
 │   ├── gpu-endpoint.md          # why the GPU SSH port changes on every boot
@@ -157,6 +159,12 @@ Pi USB mic ─▶ audio-edge ──MQTT packets────────▶ audio
 
 See [docs/environment-gateway.md](docs/environment-gateway.md) for the gateway contract and
 [docs/system-verification.md](docs/system-verification.md) for evidence status and known gaps.
+
+The vision side runs four edge/cloud layouts (A local recognition, B gated upload, C full upload —
+the current main path — and D video replay) over one shared cloud pipeline, with the control and
+media planes on separate MQTT lanes. The layout, topic contract and the offline learning loop are
+in [docs/architecture.md](docs/architecture.md); the rendered figure is
+[docs/figures/abcd-architecture.png](docs/figures/abcd-architecture.png).
 
 ## 📝 Configuration
 
