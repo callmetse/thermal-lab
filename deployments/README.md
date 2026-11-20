@@ -27,3 +27,20 @@ hashes measured at capture time are in [`../docs/pi-diff-20261120.md`](../docs/p
 
 **Do not edit this directory.** It is evidence of what the device ran; changes belong in
 `environment/`, `vision/` or `acoustic/`, with the reconciliation described in the diff report.
+
+## `control-20261120/`
+
+Captured read-only from the control host (the broker and Node-RED console) on 2026-11-20:
+
+| Path in the archive | Control-host path |
+|---|---|
+| `deploy/nodered/` | `/srv/abc20261102/deploy/nodered` — Node-RED flows, page and settings |
+| `deploy/` | systemd units, `console.Caddyfile`, compose files, bootstrap scripts |
+| `README.md`, `PROVENANCE.json`, `requirements-runtime.txt`, `package.json` | service root |
+
+Excluded: `config.json`, `node_modules/`, `state/` runtime data (batches, logs, Node-RED library),
+`package-lock.json`, and Node-RED's `.config.runtime.json` credential secret. Hosts and account
+names use the same example substitutions as the Pi archive.
+
+The front-end comparison between the repository, the control host and the Pi is in
+[`../docs/frontend-20261120.md`](../docs/frontend-20261120.md).

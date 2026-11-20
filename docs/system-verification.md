@@ -89,8 +89,12 @@ full comparison, including every differing file, is in
   `lab/common.py`, `lab/local_preview.py`, `lab/presentation.py`, `lab/vision.py` and
   `lab/worker.py` differ. The GPU therefore ran a variant distinct from both the Pi and every copy
   in this repository.
-- On 2026-11-20 both recorded GPU ports refused connections, so the cloud source could not be
+- On 2026-11-20 both recorded GPU ports refused connections, so the GPU source could not be
   captured. Digests cannot reconstruct source; a running host is required.
+- The control host **was** reached read-only on 2026-11-20: its Node-RED deployment, systemd units
+  and console files are archived under `deployments/control-20261120/`, and the front-end
+  comparison is in [`frontend-20261120.md`](frontend-20261120.md). The deployed `flows-native.json`
+  (2026-11-17) is newer than the copy in this repository.
 
 ## Audio launch configuration gaps
 

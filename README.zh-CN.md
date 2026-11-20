@@ -21,7 +21,8 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `revisions/environment-longterm/` | 环境网关的长期记录变体 |
 | `revisions/collaboration/` | 协作补丁包（**不是独立包**，测试需叠加基础视觉包） |
 | `deployments/pi-20261120/` | **Pi 现网快照**（2026-11-20 只读取回、已脱敏，含 SHA256SUMS）；只读参考，不要改 |
-| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异 |
+| `deployments/control-20261120/` | **控制云快照**（Node-RED flows、systemd、Caddyfile 等，脱敏后 25 个文件） |
+| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比 |
 
 先读这两份：
 
@@ -51,6 +52,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
 | `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
 | 现网视觉与仓库不一致 | Pi 上跑的是混合构建（扩展模块 + `dataset-api` 服务），26 个文件内容不同 | 详见 `docs/system-verification.md`，不能把 `vision/` 当成现网源码 |
+| 前端实验台不是最新 | `vision/deploy/nodered/` 的 `page.html` 是 52 KB、现网 35 KB；`flows-native.json` 92 KB、控制云 102 KB（11-17） | 以部署的为准，见 `docs/frontend-20261120.md` |
 
 ## 四、本地怎么跑（小白 3 分钟版）
 

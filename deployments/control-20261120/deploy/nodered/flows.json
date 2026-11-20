@@ -1,0 +1,592 @@
+[
+  {
+    "id": "lab",
+    "type": "tab",
+    "label": "独立 A/B/C · 7B"
+  },
+  {
+    "id": "live_ws",
+    "type": "websocket-listener",
+    "path": "/live",
+    "wholemsg": "false"
+  },
+  {
+    "id": "video_ws",
+    "type": "websocket-listener",
+    "path": "/live-video",
+    "wholemsg": "false"
+  },
+  {
+    "id": "broker",
+    "type": "mqtt-broker",
+    "name": "Independent lab broker",
+    "broker": "broker",
+    "port": "1883",
+    "clientid": "abc20261102-console",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "30",
+    "cleansession": true
+  },
+  {
+    "id": "http_response",
+    "type": "http response",
+    "z": "lab",
+    "x": 250,
+    "y": 160,
+    "statusCode": "",
+    "headers": {}
+  },
+  {
+    "id": "page_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 200,
+    "name": "/lab",
+    "url": "/lab",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "page"
+      ]
+    ]
+  },
+  {
+    "id": "page",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 240,
+    "name": "page",
+    "func": "msg.headers={'Content-Type':'text/html; charset=utf-8'};msg.payload=\"<!doctype html>\\n<html lang=\\\"zh\\\">\\n<head>\\n<meta charset=\\\"utf-8\\\"><meta name=\\\"viewport\\\" content=\\\"width=device-width,initial-scale=1,viewport-fit=cover\\\">\\n<title>Pi \\u5b9e\\u65f6\\u8bc6\\u522b \\u00b7 A/B/C</title>\\n<style>\\n:root{font-family:Inter,\\\"PingFang SC\\\",\\\"Microsoft YaHei\\\",system-ui,sans-serif;color:#eaf0f8;background:#0c111b;color-scheme:dark;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,select,input{font:inherit}button,select,input{min-height:44px;border:1px solid #354258;border-radius:10px;padding:9px 12px;background:#162030;color:#eef4ff}button{cursor:pointer}button:disabled,select:disabled,input:disabled{opacity:.46;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #78b7ff;outline-offset:3px}button.primary{background:#43cbac;color:#06221c;font-weight:750;border-color:transparent}button.stop{border-color:#cb6c7d;color:#ffbfcb}main{max-width:1440px;margin:auto;padding:22px 24px 32px}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}h1{font-size:clamp(21px,2.5vw,30px);margin:0;letter-spacing:-.03em}.subtitle{color:#96a7bd;font-size:14px;margin:6px 0 0}.badge{border:1px solid #344158;border-radius:999px;padding:7px 11px;color:#acb9ce;font-size:13px;white-space:nowrap}.badge.online{color:#7aebcf;border-color:#267963}.controls{display:flex;flex-wrap:wrap;align-items:end;gap:10px;padding:14px;border-radius:16px;background:#121b29;border:1px solid #253247;margin-bottom:10px}.field{display:grid;gap:6px}.field label{font-size:12px;color:#a8b7cb}.field input{width:110px}.buttons{display:flex;gap:8px}.message{min-height:20px;margin:7px 2px;font-size:14px;color:#a6b8ce}.bad{color:#ffafbd!important}#error:empty,#feedback:empty{display:none}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px;align-items:start}.player{position:relative;overflow:hidden;min-height:260px;background:#05080e;border:1px solid #2c3950;border-radius:18px;isolation:isolate}.stage{position:relative;width:100%;aspect-ratio:4/3;background:radial-gradient(circle at center,#182437,#070b12)}#preview{display:block;width:100%;height:100%;object-fit:contain;position:absolute;inset:0}#preview:not([src]){opacity:0}.empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:30px;color:#92a3bb;pointer-events:none}.empty strong{font-size:22px;color:#c7d4e6;margin-bottom:10px}.empty small{line-height:1.6}#overlay{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.box-target{pointer-events:all;cursor:pointer}.video-top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:start;gap:8px;pointer-events:none;z-index:3}.hud-chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;line-height:1.35;color:#f0f5ff;border:1px solid #ffffff25;background:#07101cd9;backdrop-filter:blur(8px);border-radius:7px;padding:6px 8px;white-space:nowrap}.chip.live{color:#8ff4d8}.chip.warn{color:#ffd38d}.video-tools{display:flex;gap:6px;pointer-events:auto}.tool{min-height:34px;padding:6px 9px;font-size:12px;background:#07101cd9}.video-bottom{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:32px 14px 13px;background:linear-gradient(transparent,#030812e8 30%);pointer-events:none}.match-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:7px;font-size:12px;color:#b0c1d9}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f4bd6b}.dot.ok{background:#53e1bc}.track-detail{font-size:14px;line-height:1.55;color:#eef4fc;max-width:100%}.track-detail .muted{font-size:12px;color:#a4b4ca}.reason{color:#b0bfd1}.llm-line{margin-top:8px;font-size:13px;line-height:1.5;color:#daeadf;display:flex;gap:7px}.llm-mark{font-size:11px;font-weight:750;border-radius:5px;line-height:18px;padding:1px 5px;background:#22493d;color:#a8f4d3;white-space:nowrap;align-self:flex-start}.llm-copy{overflow-wrap:anywhere}.side{background:#121b29;border:1px solid #253247;border-radius:16px;padding:15px}.side h2{font-size:15px;margin:0 0 6px}.side-note{font-size:12px;color:#8fa2bc;margin:0 0 12px;line-height:1.6}.person-card{display:block;width:100%;text-align:left;min-height:0;padding:11px 12px;margin:8px 0 0;border-color:#2a3b53;background:#172335;line-height:1.5}.person-card.selected{border-color:#63e4c4;background:#17352f}.person-card strong{font-size:14px}.person-card small{display:block;color:#aebed1;font-size:12px;margin-top:4px}.no-person{color:#9cacbf;font-size:14px;padding:12px 0}.side-stat{font-size:12px;color:#99acc4;padding-top:12px;line-height:1.7}.debug{margin-top:18px;border:1px solid #263349;border-radius:12px;background:#101925}.debug summary{cursor:pointer;padding:12px 14px;font-size:13px;color:#a6b8d0}.debug-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px}.debug h3{font-size:12px;font-weight:600;color:#afc0d5}.debug pre{font:11px ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#080f1a;border-radius:9px;padding:12px;max-height:380px;overflow:auto}.footer{color:#7d91ac;font-size:12px;line-height:1.6;margin-top:14px}.player:fullscreen{border-radius:0;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;border:0}.player:fullscreen .stage{width:100vw;height:100vh;min-height:0;aspect-ratio:auto}.player:fullscreen .video-top,.player:fullscreen .video-bottom{position:absolute}.player:fullscreen .video-bottom{padding-bottom:max(15px,env(safe-area-inset-bottom))}\\n@media(max-width:1050px){.layout{grid-template-columns:minmax(0,1fr) 250px}main{padding:16px}.side{padding:12px}.chip{font-size:11px}}\\n@media(max-width:820px){.layout{grid-template-columns:1fr}.side{display:none}.controls{padding:12px}.stage{min-height:240px}.track-detail{font-size:13px}.video-bottom{padding:28px 11px 10px}.chip{padding:5px 7px}.subtitle{font-size:12px}.badge{font-size:11px}.debug-body{grid-template-columns:1fr}}\\n@media(max-width:520px){main{padding:12px 10px 24px}header{align-items:start}.badge{max-width:110px;white-space:normal;text-align:center;padding:6px 8px}.controls{gap:8px}.field:first-child{flex:1 1 170px}.field select{width:100%}.field input{width:90px}.buttons{flex:1 1 auto}.buttons button{flex:1}.player{border-radius:13px}.stage{min-height:280px;aspect-ratio:4/3}#preview{object-fit:contain}.video-top{top:9px;left:9px;right:9px}.hud-chips{gap:4px;max-width:calc(100% - 46px)}.chip{font-size:10px;padding:5px 6px}.video-bottom{padding:32px 10px 9px}.match-line{font-size:10px;gap:5px;margin-bottom:4px}.track-detail{font-size:12px}.track-detail .muted{font-size:10px}.llm-line{font-size:11px;gap:5px;margin-top:5px}.llm-mark{font-size:10px}.tool{font-size:11px;padding:5px 7px;min-height:30px}}\\n@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}\\n</style>\\n</head>\\n<body><main>\\n<header><div><h1>Pi \\u5b9e\\u65f6\\u8bc6\\u522b</h1><p class=\\\"subtitle\\\">A / B / C \\u5b9e\\u9a8c\\u53f0 \\u00b7 \\u753b\\u9762\\u5185\\u67e5\\u770b\\u8bc6\\u522b\\u7ed3\\u679c\\u4e0e\\u66f4\\u65b0\\u72b6\\u6001</p></div><span id=\\\"connection\\\" class=\\\"badge\\\">\\u6b63\\u5728\\u8fde\\u63a5\\u63a7\\u5236\\u53f0</span></header>\\n<section class=\\\"controls\\\" aria-label=\\\"\\u5b9e\\u9a8c\\u63a7\\u5236\\\">\\n<div class=\\\"field\\\"><label for=\\\"arm\\\">\\u5904\\u7406\\u65b9\\u6848</label><select id=\\\"arm\\\"><option value=\\\"A\\\">A \\u00b7 Pi \\u5b8c\\u6574\\u89c6\\u89c9</option><option value=\\\"B\\\">B \\u00b7 Pi \\u4eba\\u7269\\u95e8\\u63a7</option><option value=\\\"C\\\" selected>C \\u00b7 \\u4e91\\u7aef\\u5b8c\\u6574\\u89c6\\u89c9</option></select></div>\\n<div class=\\\"field\\\"><label for=\\\"source\\\">\\u753b\\u9762\\u6765\\u6e90</label><select id=\\\"source\\\"><option value=\\\"camera\\\" selected>\\u6444\\u50cf\\u5934\\u5b9e\\u62cd</option><option value=\\\"replay\\\">\\u540c\\u6e90\\u56de\\u653e</option></select></div>\\n<div class=\\\"field\\\"><label for=\\\"seconds\\\">\\u8fd0\\u884c\\u65f6\\u957f / \\u79d2</label><input id=\\\"seconds\\\" type=\\\"number\\\" min=\\\"1\\\" max=\\\"3600\\\" value=\\\"60\\\"></div>\\n<div class=\\\"buttons\\\"><button class=\\\"primary\\\" id=\\\"start_button\\\" onclick=\\\"start()\\\">\\u5f00\\u59cb</button><button class=\\\"stop\\\" id=\\\"stop_button\\\" onclick=\\\"stop()\\\">\\u505c\\u6b62</button></div>\\n</section>\\n<p id=\\\"status\\\" class=\\\"message\\\" role=\\\"status\\\">\\u6b63\\u5728\\u8bfb\\u53d6\\u8fd0\\u884c\\u72b6\\u6001\\u2026</p><p id=\\\"feedback\\\" class=\\\"message\\\" role=\\\"status\\\" aria-live=\\\"polite\\\"></p><p id=\\\"error\\\" class=\\\"message bad\\\" role=\\\"alert\\\"></p>\\n<div class=\\\"layout\\\">\\n<section class=\\\"player\\\" id=\\\"player\\\" aria-label=\\\"\\u5b9e\\u65f6\\u753b\\u9762\\u4e0e\\u8bc6\\u522b\\u53e0\\u52a0\\\">\\n<div class=\\\"stage\\\" id=\\\"stage\\\">\\n<div class=\\\"empty\\\" id=\\\"empty\\\"><strong>\\u7b49\\u5f85\\u5b9e\\u62cd\\u753b\\u9762</strong><small>\\u9009\\u62e9\\u65b9\\u6848\\u540e\\u70b9\\u51fb\\u201c\\u5f00\\u59cb\\u201d<br>B \\u7ec4\\u68c0\\u51fa\\u4eba\\u7269\\u540e\\u8fdb\\u884c\\u4e91\\u7aef\\u8bc6\\u522b</small></div>\\n<img id=\\\"preview\\\" alt=\\\"\\u672c\\u6b21\\u5b9e\\u9a8c\\u5b9e\\u65f6\\u753b\\u9762\\\">\\n<svg id=\\\"overlay\\\" aria-label=\\\"\\u4e0e\\u753b\\u9762\\u540c\\u5e27\\u7684\\u4eba\\u7269\\u8bc6\\u522b\\u6846\\\"></svg>\\n</div>\\n<div class=\\\"video-top\\\"><div class=\\\"hud-chips\\\"><span class=\\\"chip live\\\" id=\\\"run_chip\\\">\\u5f85\\u547d</span><span class=\\\"chip\\\" id=\\\"fps_chip\\\">\\u753b\\u9762 \\u2014 fps</span><span class=\\\"chip\\\" id=\\\"obs_chip\\\">\\u8bc6\\u522b \\u2014 Hz</span><span class=\\\"chip\\\" id=\\\"age_chip\\\">\\u7b49\\u5f85\\u66f4\\u65b0</span></div><div class=\\\"video-tools\\\"><button class=\\\"tool\\\" id=\\\"fullscreen_button\\\" title=\\\"\\u5168\\u5c4f\\u67e5\\u770b\\\" onclick=\\\"fullscreen()\\\">\\u5168\\u5c4f</button></div></div>\\n<div class=\\\"video-bottom\\\">\\n<div class=\\\"match-line\\\"><span class=\\\"dot\\\" id=\\\"match_dot\\\"></span><span id=\\\"match_status\\\">\\u8bc6\\u522b\\u7ed3\\u679c\\u5c06\\u4e0e\\u5bf9\\u5e94\\u753b\\u9762\\u4e00\\u8d77\\u663e\\u793a</span><span id=\\\"frame_label\\\"></span></div>\\n<div class=\\\"track-detail\\\" id=\\\"track_detail\\\">\\u4eba\\u7269\\u6846\\u3001\\u59ff\\u6001\\u3001\\u52a8\\u4f5c\\u4e0e\\u670d\\u9970\\u4fe1\\u606f\\u4f1a\\u51fa\\u73b0\\u5728\\u753b\\u9762\\u4e0a\\u3002</div>\\n<div class=\\\"llm-line\\\"><span class=\\\"llm-mark\\\">7B</span><span class=\\\"llm-copy\\\" id=\\\"llm_summary\\\">\\u7b49\\u5f85\\u672c\\u6b21\\u5b9e\\u9a8c\\u63a8\\u7406</span></div>\\n</div>\\n</section>\\n<aside class=\\\"side\\\"><h2>\\u753b\\u9762\\u4e2d\\u7684\\u4eba\\u7269</h2><p class=\\\"side-note\\\">\\u70b9\\u51fb\\u4eba\\u7269\\u6846\\u6216\\u5361\\u7247\\uff0c\\u7a81\\u51fa\\u663e\\u793a\\u8be5\\u4eba\\u7269\\u3002ID \\u53ea\\u7528\\u4e8e\\u672c\\u6b21\\u8ddf\\u8e2a\\u3002</p><div id=\\\"person_list\\\" class=\\\"no-person\\\">\\u7b49\\u5f85\\u540c\\u5e27\\u8bc6\\u522b</div><div class=\\\"side-stat\\\" id=\\\"side_stat\\\"></div></aside>\\n</div>\\n<details class=\\\"debug\\\"><summary>\\u67e5\\u770b\\u539f\\u59cb\\u89c2\\u6d4b\\u4e0e 7B \\u8bb0\\u5f55</summary><div class=\\\"debug-body\\\"><div><h3>\\u89c6\\u89c9\\u89c2\\u6d4b</h3><pre id=\\\"obs\\\">\\u7b49\\u5f85\\u89c2\\u6d4b</pre></div><div><h3>7B \\u8f93\\u51fa</h3><pre id=\\\"llm\\\">\\u7b49\\u5f85\\u7ed3\\u679c</pre></div></div></details>\\n<p class=\\\"footer\\\">\\u70b9\\u51fb\\u4eba\\u7269\\u6846\\u53ef\\u5207\\u6362\\u8be5\\u4eba\\u7684\\u8be6\\u60c5\\u3002\\u753b\\u9762 fps \\u4e0e\\u8bc6\\u522b Hz \\u4e3a\\u672c\\u9875\\u6700\\u8fd1\\u5b9e\\u9645\\u6536\\u5230\\u7684\\u66f4\\u65b0\\u9891\\u7387\\u3002\\u4ec5\\u5728\\u5e27\\u53f7\\u5bf9\\u5e94\\u65f6\\u753b\\u4eba\\u7269\\u6846\\uff1bCLO / MET \\u672a\\u4f30\\u8ba1\\u65f6\\u4fdd\\u6301\\u672a\\u77e5\\u3002\\u59ff\\u6001\\u3001\\u52a8\\u4f5c\\u4e0e\\u670d\\u9970\\u4e3a\\u6a21\\u578b\\u8f93\\u51fa\\uff0c\\u51c6\\u786e\\u6027\\u4ecd\\u9700\\u4eba\\u5de5\\u6807\\u7b7e\\u9a8c\\u8bc1\\u3002</p>\\n</main>\\n<script>\\n'use strict';\\nconst $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';\\nconst postureNames={standing:'\\u7ad9\\u7acb',seated:'\\u5750\\u59ff',sitting:'\\u5750\\u59ff',lying:'\\u8eba\\u59ff',unknown:'\\u59ff\\u6001\\u672a\\u77e5'};\\nconst actionNames={unknown:'\\u52a8\\u4f5c\\u672a\\u77e5',other:'\\u5176\\u4ed6 / \\u672a\\u786e\\u8ba4',sit_down:'\\u5750\\u4e0b\\u5019\\u9009',stand_up:'\\u8d77\\u8eab\\u5019\\u9009',walking_interaction:'\\u884c\\u8d70 / \\u4e92\\u52a8\\u5019\\u9009'};\\nconst clothesNames={'shirt, blouse':'\\u886c\\u886b','top, t-shirt, sweatshirt':'\\u4e0a\\u8863 / T\\u6064','sweater':'\\u6bdb\\u8863','cardigan':'\\u5f00\\u886b','jacket':'\\u5939\\u514b / \\u5916\\u5957','vest':'\\u80cc\\u5fc3','pants':'\\u957f\\u88e4','shorts':'\\u77ed\\u88e4','skirt':'\\u88d9\\u88c5','coat':'\\u5927\\u8863','dress':'\\u8fde\\u8863\\u88d9','sock':'\\u889c\\u5b50','shoe':'\\u978b','hat':'\\u5e3d\\u5b50','glasses':'\\u773c\\u955c','tights, stockings':'\\u88e4\\u889c'};\\nlet llmCurrent=null,llmAgeBase=null,llmAgeAt=performance.now();\\nlet active=null,state=null,lastLLM='',socket=null,ageBase=null,ageAt=performance.now(),busy=false,actionError='',lastPush=0;\\nlet videoSocket=null,videoPending=null,lastVideoPacketAt=0,videoConnectedAt=0,imageAbort=null;\\nlet wantedPreview='',imageFlight=false,displayed=null,currentImageURL='',selectedTrack=null,frameMarks=[],obsMarks=[],lastObsKey='',lastRun='';\\nconst observations=new Map(),metadata=new Map();\\nconst now=()=>performance.now();\\nfunction putBounded(map,key,value,limit=160){map.set(key,value);while(map.size>limit)map.delete(map.keys().next().value)}\\nfunction keyOf(value){return value?.run_id!=null&&value?.source_frame_id!=null?`${value.run_id}:${value.source_frame_id}`:''}\\nfunction valueText(value,unit=''){return typeof value==='number'&&Number.isFinite(value)?`${value.toFixed(2)}${unit}`:'\\u672a\\u4f30\\u8ba1'}\\nfunction postureText(track){return postureNames[track.posture?.state]||track.posture?.state||'\\u59ff\\u6001\\u672a\\u77e5'}\\nfunction actionText(track){return actionNames[track.action?.value]||track.action?.value||'\\u52a8\\u4f5c\\u672a\\u77e5'}\\nfunction clothingText(track){const items=[...new Set((track.clothing||[]).map(g=>clothesNames[g.category]||g.category))];return items.length?items.join('\\u3001'):'\\u672a\\u68c0\\u51fa / \\u672a\\u77e5'}\\nfunction trim(text,max){return text.length>max?text.slice(0,max-1)+'\\u2026':text}\\nfunction rate(marks){const t=now();while(marks.length&&marks[0]<t-5000)marks.shift();if(marks.length<2||t-marks[marks.length-1]>2000||marks[marks.length-1]-marks[0]<500)return null;return (marks.length-1)*1000/(marks[marks.length-1]-marks[0])}\\nfunction recordObservation(obs){const key=keyOf(obs);if(!key||observations.has(key))return;putBounded(observations,key,obs);lastObsKey=key;obsMarks.push(now())}\\nfunction sameObservation(obs,id,meta){if(!obs||keyOf(obs)!==id)return false;if(meta?.jpeg_sha256&&obs.jpeg_sha256&&meta.jpeg_sha256!==obs.jpeg_sha256)return false;return true}\\nfunction matchedObservation(){if(!displayed)return null;const m=displayed.meta;const embedded=m?.observation||m?.matched_observation;return sameObservation(embedded,displayed.id,m)?embedded:sameObservation(observations.get(displayed.id),displayed.id,m)?observations.get(displayed.id):null}\\nfunction buttons(){for(const id of ['arm','source','seconds'])$(id).disabled=busy||!!active;$('start_button').disabled=busy||!!active;$('stop_button').disabled=busy||!active}\\nfunction updateStatus(){const age=ageBase==null?null:ageBase+(now()-ageAt)/1000;const imageAge=displayed?(now()-displayed.receivedAt)/1000:null;const f=rate(frameMarks),o=rate(obsMarks);$('fps_chip').textContent=`\\u753b\\u9762 ${f==null?'\\u2014':f.toFixed(1)} fps`;$('obs_chip').textContent=`\\u8bc6\\u522b ${o==null?'\\u2014':o.toFixed(1)} Hz`;$('run_chip').textContent=active?`${active.arm} \\u7ec4 \\u00b7 ${active.source==='camera'?'\\u5b9e\\u62cd':'\\u56de\\u653e'}`:'\\u5f85\\u547d';$('age_chip').textContent=imageAge==null?'\\u7b49\\u5f85\\u66f4\\u65b0':imageAge>3?`\\u753b\\u9762\\u5df2\\u8fc7\\u671f ${imageAge.toFixed(1)}s`:`\\u66f4\\u65b0 ${imageAge.toFixed(1)}s \\u524d`;$('age_chip').className='chip'+(imageAge!=null&&imageAge>3?' warn':'');$('status').textContent=active?`${active.arm} \\u7ec4\\u8fd0\\u884c\\u4e2d \\u00b7 ${age==null?'\\u7b49\\u5f85\\u8bc6\\u522b\\u89c2\\u6d4b':`\\u8bc6\\u522b\\u89c2\\u6d4b ${age.toFixed(1)} \\u79d2\\u524d\\u66f4\\u65b0`}${age!=null&&age>3?' \\u00b7 \\u8bc6\\u522b\\u6570\\u636e\\u5df2\\u8fc7\\u671f':''}`:'\\u5f85\\u547d\\uff1a\\u9009\\u62e9\\u65b9\\u6848\\u4e0e\\u6765\\u6e90\\uff0c\\u70b9\\u51fb\\u201c\\u5f00\\u59cb\\u201d';$('status').className='message'+(age!=null&&age>3?' bad':'');if(displayed&&imageAge>3){$('match_status').textContent='\\u5f53\\u524d\\u753b\\u9762\\u5df2\\u8fc7\\u671f\\uff0c\\u7b49\\u5f85\\u65b0\\u7684\\u56fe\\u50cf';$('match_dot').className='dot'}const count=matchedObservation()?.tracks?.length;showLLM(llmCurrent);$('side_stat').textContent=displayed?`\\u5f53\\u524d\\u5e27 ${displayed.meta?.source_frame_id??displayed.id.split(':').slice(-1)[0]}${count!=null?` \\u00b7 ${count} \\u6761\\u4eba\\u7269\\u8f68\\u8ff9`:''}\\u3002\\u753b\\u9762\\u4e0e\\u8bc6\\u522b\\u4f7f\\u7528\\u72ec\\u7acb\\u8ba1\\u6570\\uff0c7B\\u6309\\u9700\\u66f4\\u65b0\\u3002`:'\\u5f00\\u59cb\\u540e\\u663e\\u793a\\u5f53\\u524d\\u753b\\u9762\\u4e0e\\u9010\\u4eba\\u7ed3\\u679c\\u3002'}\\nasync function post(path,data){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);try{const r=await fetch('/api/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:controller.signal});const text=await r.text();let v;try{v=JSON.parse(text)}catch(error){throw Error(r.status===401?'\\u8bf7\\u91cd\\u65b0\\u767b\\u5f55\\u63a7\\u5236\\u53f0':'\\u9875\\u9762\\u5730\\u5740\\u6216\\u8fde\\u63a5\\u5f02\\u5e38\\uff0c\\u8bf7\\u91cd\\u65b0\\u6253\\u5f00\\u63a7\\u5236\\u53f0')}if(!r.ok)throw Error(v.error||`\\u64cd\\u4f5c\\u5931\\u8d25\\uff08${r.status}\\uff09`);return v}finally{clearTimeout(timer)}}\\nasync function refresh(){const r=await fetch('/api/state',{cache:'no-store'});if(!r.ok)throw Error('\\u8fde\\u63a5\\u65ad\\u5f00\\u6216\\u767b\\u5f55\\u5df2\\u5931\\u6548\\uff0c\\u8bf7\\u5237\\u65b0\\u63a7\\u5236\\u53f0');render(await r.json())}\\nasync function action(path,data){if(busy)return;busy=true;actionError='';$('error').textContent='';$('feedback').textContent=path==='start'?'\\u6b63\\u5728\\u542f\\u52a8\\uff0c\\u8bf7\\u7a0d\\u5019\\u2026':'\\u6b63\\u5728\\u505c\\u6b62\\u2026';buttons();try{await post(path,data);await refresh();$('feedback').textContent=path==='start'?(data.arm==='B'?'\\u5df2\\u542f\\u52a8 B \\u7ec4\\uff1a\\u68c0\\u51fa\\u4eba\\u7269\\u540e\\u8fdb\\u884c\\u4e91\\u7aef\\u8bc6\\u522b':'\\u5df2\\u542f\\u52a8\\uff0c\\u7b49\\u5f85\\u5b9e\\u62cd\\u753b\\u9762\\u548c\\u8bc6\\u522b\\u7ed3\\u679c'):'\\u5df2\\u505c\\u6b62\\uff0c\\u53ef\\u4ee5\\u91cd\\u65b0\\u9009\\u62e9\\u5b9e\\u9a8c'}catch(error){actionError=error.name==='AbortError'?'\\u64cd\\u4f5c\\u8d85\\u65f6\\uff0c\\u8bf7\\u68c0\\u67e5\\u6811\\u8393\\u6d3e\\u548c\\u4e91\\u7aef\\u8fde\\u63a5':error.message;$('error').textContent=actionError;$('feedback').textContent='\\u64cd\\u4f5c\\u672a\\u5b8c\\u6210'}finally{busy=false;buttons()}}\\nasync function start(){await action('start',{arm:$('arm').value,source:$('source').value,seconds:+$('seconds').value})}\\nasync function stop(){await action('stop',{})}\\nasync function ack(kind,id){if(active&&id.startsWith(active.run_id+':'))await post('ack',{run_id:active.run_id,kind,id}).catch(()=>{})}\\nasync function fullscreen(){const el=$('player');if(document.fullscreenElement){await document.exitFullscreen?.()}else if(el.requestFullscreen){await el.requestFullscreen()}else{$('feedback').textContent='\\u5f53\\u524d\\u6d4f\\u89c8\\u5668\\u4e0d\\u652f\\u6301\\u5168\\u5c4f\\uff0c\\u8bf7\\u65cb\\u8f6c\\u5e73\\u677f\\u6a2a\\u5c4f\\u67e5\\u770b'}}\\nfunction resetView(){videoPending=null;if(imageAbort)imageAbort.abort();llmCurrent=null;llmAgeBase=null;wantedPreview='';displayed=null;selectedTrack=null;lastObsKey='';frameMarks=[];obsMarks=[];observations.clear();metadata.clear();$('preview').removeAttribute('src');$('overlay').replaceChildren();$('empty').style.display='grid';$('track_detail').textContent='\\u4eba\\u7269\\u6846\\u3001\\u59ff\\u6001\\u3001\\u52a8\\u4f5c\\u4e0e\\u670d\\u9970\\u4fe1\\u606f\\u4f1a\\u51fa\\u73b0\\u5728\\u753b\\u9762\\u4e0a\\u3002';$('person_list').textContent='\\u7b49\\u5f85\\u540c\\u5e27\\u8bc6\\u522b';$('person_list').className='no-person';$('person_list').dataset.signature='';$('frame_label').textContent='';$('match_status').textContent='\\u8bc6\\u522b\\u7ed3\\u679c\\u5c06\\u4e0e\\u5bf9\\u5e94\\u753b\\u9762\\u4e00\\u8d77\\u663e\\u793a';$('match_dot').className='dot';if(currentImageURL){URL.revokeObjectURL(currentImageURL);currentImageURL=''}}\\nfunction rememberMeta(s){for(const m of [s.preview_meta,s.preview_metadata]){if(!m)continue;const id=m.preview_id||keyOf(m)||s.preview_id;if(id)putBounded(metadata,id,m);if(m.observation)recordObservation(m.observation);if(m.matched_observation)recordObservation(m.matched_observation)}}\\nfunction showLLM(llm){if(!llm){$('llm_summary').textContent='\\u7b49\\u5f85\\u672c\\u6b21\\u5b9e\\u9a8c\\u63a8\\u7406 \\u00b7 7B \\u975e\\u9010\\u5e27\\u66f4\\u65b0';return}const draft=llm.draft||{};const title=llm.status==='generated'?'':llm.status==='rejected'?'\\u7ed3\\u679c\\u88ab\\u6821\\u9a8c\\u62d2\\u7edd \\u00b7 ':llm.status==='failed'?'\\u63a8\\u7406\\u5931\\u8d25 \\u00b7 ':'';const text=llm.status==='failed'?(llm.error||'\\u7b49\\u5f85\\u6062\\u590d'):draft.summary||'\\u7b49\\u5f85\\u6a21\\u578b\\u7ed3\\u679c';const uncertainty=draft.uncertainty?`\\uff1b${draft.uncertainty}`:'';const age=llmAgeBase==null?'\\u66f4\\u65b0\\u65f6\\u95f4\\u672a\\u77e5':`${(llmAgeBase+(now()-llmAgeAt)/1000).toFixed(1)}s \\u524d\\u66f4\\u65b0`;$('llm_summary').textContent=`${title}${text}${uncertainty}\\uff08${age} \\u00b7 \\u4f9d\\u636e\\u5e27 ${llm.source_frame_id??'\\u2014'} \\u00b7 \\u975e\\u9010\\u5e27\\uff09`}\\nfunction render(s){state=s;active=s.active||null;const run=active?.run_id||'';if(run!==lastRun){lastRun=run;resetView();lastLLM=''}ageBase=s.observation_age_s??null;ageAt=now();recordObservation(s.observation);rememberMeta(s);buttons();if(active){$('arm').value=active.arm;$('source').value=active.source;$('seconds').value=active.seconds}$('error').textContent=s.run_error||actionError||'';$('obs').textContent=JSON.stringify(s.observation||null,null,2);$('llm').textContent=JSON.stringify(s.llm||null,null,2);llmCurrent=s.llm||null;llmAgeBase=typeof s.llm_age_s==='number'?s.llm_age_s:null;llmAgeAt=now();showLLM(llmCurrent);const id=s.preview_id||s.preview_meta?.preview_id||s.preview_metadata?.preview_id||'';if(id&&active&&id.startsWith(active.run_id+':')){wantedPreview=id;pumpImage()}if(displayed&&!displayed.meta?.observation&&!displayed.meta?.matched_observation&&matchedObservation()!==displayed.drawnObservation)drawOverlay();if(s.llm_id&&s.llm_id!==lastLLM){lastLLM=s.llm_id;requestAnimationFrame(()=>requestAnimationFrame(()=>ack('llm',s.llm_id)))}updateStatus()}\\nfunction videoFresh(){return videoSocket?.readyState===1&&(now()-Math.max(lastVideoPacketAt,videoConnectedAt)<1800)}\\nasync function displayPacket(buffer,expectedId=null,responseId=null){\\n if(buffer.byteLength<6)throw Error('\\u753b\\u9762\\u6570\\u636e\\u4e0d\\u5b8c\\u6574');\\n const size=new DataView(buffer).getUint32(0,false);\\n if(size>65536||size+4>=buffer.byteLength)throw Error('\\u753b\\u9762\\u5143\\u6570\\u636e\\u65e0\\u6548');\\n const meta=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,4,size))),actual=responseId||meta.preview_id||keyOf(meta),run=active?.run_id;\\n if((expectedId&&actual!==expectedId)||keyOf(meta)!==actual)throw Error('\\u753b\\u9762\\u5e27\\u53f7\\u672a\\u5bf9\\u5e94\\uff0c\\u7b49\\u5f85\\u4e0b\\u4e00\\u5e27');\\n if(!run||!actual.startsWith(run+':'))return;\\n if(displayed?.meta?.run_id===run&&+meta.source_frame_id<=+displayed.meta.source_frame_id)return;\\n putBounded(metadata,actual,meta);if(meta.observation)recordObservation(meta.observation);\\n let url=URL.createObjectURL(new Blob([new Uint8Array(buffer,4+size)],{type:'image/jpeg'}));\\n try{\\n  const decoded=new Image();decoded.src=url;await decoded.decode();if(active?.run_id!==run)return;\\n  const img=$('preview');img.src=url;await img.decode();if(active?.run_id!==run)return;\\n  const previous=currentImageURL;currentImageURL=url;url='';if(previous)URL.revokeObjectURL(previous);\\n  displayed={id:actual,meta,receivedAt:now()};$('empty').style.display='none';$('stage').style.aspectRatio=String(img.naturalWidth/img.naturalHeight);drawOverlay();\\n  const shown=displayed;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(active?.run_id===run&&displayed===shown){frameMarks.push(now());updateStatus();ack('preview',actual)}}));\\n }finally{if(url)URL.revokeObjectURL(url)}\\n}\\nasync function drainVideo(){\\n if(imageFlight||!videoPending)return;imageFlight=true;const buffer=videoPending;videoPending=null;\\n try{await displayPacket(buffer)}catch(error){if(active)$('error').textContent=error.message}\\n finally{imageFlight=false;if(videoPending)queueMicrotask(drainVideo)}\\n}\\nasync function pumpImage(){\\n if(imageFlight||videoFresh()||!wantedPreview||wantedPreview===displayed?.id)return;\\n imageFlight=true;const id=wantedPreview,run=active?.run_id;imageAbort=new AbortController();const timer=setTimeout(()=>imageAbort?.abort(),3000);\\n try{const r=await fetch('/api/preview-frame?v='+encodeURIComponent(id),{cache:'no-store',signal:imageAbort.signal});\\n  if(!r.ok){if(r.status!==410&&r.status!==404)throw Error('\\u753b\\u9762\\u8fde\\u63a5\\u5f02\\u5e38\\uff0c\\u6b63\\u5728\\u7b49\\u5f85\\u4e0b\\u4e00\\u5e27');return}\\n  await displayPacket(await r.arrayBuffer(),id,r.headers.get('X-Preview-Id'));\\n }catch(error){if(active?.run_id===run&&error.name!=='AbortError')$('error').textContent=error.message}\\n finally{clearTimeout(timer);imageAbort=null;imageFlight=false;if(videoPending)queueMicrotask(drainVideo);else if(wantedPreview&&wantedPreview!==displayed?.id&&wantedPreview!==id&&!videoFresh())queueMicrotask(pumpImage)}\\n}\\nfunction connectVideo(){\\n videoSocket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/live-video');videoSocket.binaryType='arraybuffer';\\n videoSocket.onopen=()=>{videoConnectedAt=now()};\\n videoSocket.onmessage=event=>{if(!(event.data instanceof ArrayBuffer))return;lastVideoPacketAt=now();videoPending=event.data;if(imageAbort)imageAbort.abort();drainVideo()};\\n videoSocket.onclose=()=>{videoConnectedAt=0;lastVideoPacketAt=0;setTimeout(connectVideo,1000)};\\n}\\n\\nfunction svgEl(tag,attrs={}){const e=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,String(v));return e}\\nfunction addText(svg,text,x,y,font,color,weight='600'){const e=svgEl('text',{x,y,'font-size':font,fill:color,'font-weight':weight,'font-family':'system-ui,sans-serif',stroke:'#02060c','stroke-width':font*.13,'paint-order':'stroke fill','stroke-linejoin':'round'});e.textContent=text;svg.append(e);return e}\\nfunction chooseTrack(id){selectedTrack=String(id);drawOverlay()}\\nfunction drawOverlay(){const svg=$('overlay'),img=$('preview');svg.replaceChildren();if(!displayed||!img.naturalWidth)return;const obs=matchedObservation();displayed.drawnObservation=obs;const source=obs?.encoded_size||displayed.meta?.encoded_size||[img.naturalWidth,img.naturalHeight];const w=+source[0],h=+source[1];if(!(w>0&&h>0))return;svg.setAttribute('viewBox',`0 0 ${w} ${h}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');$('frame_label').textContent=`\\u753b\\u9762\\u5e27 ${displayed.meta?.source_frame_id??displayed.id.split(':').slice(-1)[0]}`;if(!obs||Math.abs(w/h-img.naturalWidth/img.naturalHeight)>.02){$('match_status').textContent='\\u7b49\\u5f85\\u540c\\u5e27\\u8bc6\\u522b \\u00b7 \\u6682\\u4e0d\\u663e\\u793a\\u4eba\\u7269\\u6846';$('match_dot').className='dot';$('track_detail').textContent='\\u5b9e\\u65f6\\u753b\\u9762\\u6b63\\u5728\\u66f4\\u65b0\\uff1b\\u8bc6\\u522b\\u7ed3\\u679c\\u672a\\u4e0e\\u5f53\\u524d\\u5e27\\u5bf9\\u5e94\\u3002';$('person_list').textContent='\\u5f53\\u524d\\u5e27\\u6682\\u65e0\\u53ef\\u5bf9\\u5e94\\u7684\\u8bc6\\u522b\\u7ed3\\u679c';$('person_list').className='no-person';$('person_list').dataset.signature='';return}const tracks=obs.tracks||[];const age=(now()-displayed.receivedAt)/1000;$('match_status').textContent=age>3?'\\u5f53\\u524d\\u753b\\u9762\\u5df2\\u8fc7\\u671f\\uff0c\\u7b49\\u5f85\\u65b0\\u56fe\\u50cf':`\\u540c\\u5e27\\u8bc6\\u522b \\u00b7 ${tracks.length} \\u6761\\u4eba\\u7269\\u8f68\\u8ff9`;$('match_dot').className='dot'+(age<=3?' ok':'');if(!tracks.some(t=>String(t.track_id)===selectedTrack))selectedTrack=tracks.length?String(tracks[0].track_id):null;const screenWidth=Math.min(img.clientWidth||w,(img.clientHeight||h)*img.naturalWidth/img.naturalHeight),font=Math.max(12,Math.min(15,screenWidth/55))*w/screenWidth;for(const track of tracks){const box=track.bbox||track.bbox_xyxy;if(!Array.isArray(box)||box.length!==4||!box.every(Number.isFinite))continue;const [a,b,c,d]=box;const x=Math.max(0,Math.min(w,a)),y=Math.max(0,Math.min(h,b)),bw=Math.min(w,c)-x,bh=Math.min(h,d)-y;if(bw<=0||bh<=0)continue;const selected=String(track.track_id)===selectedTrack,color=selected?'#65f4d0':'#e3ed79';const group=svgEl('g',{'data-track-id':track.track_id});const rect=svgEl('rect',{x,y,width:bw,height:bh,fill:selected?'#65f4d007':'transparent',stroke:color,'stroke-width':selected?2.6:1.8,'vector-effect':'non-scaling-stroke',class:'box-target',rx:2});rect.addEventListener('click',()=>chooseTrack(track.track_id));group.append(rect);const line1=`#${track.track_id} ${postureText(track)} \\u00b7 ${actionText(track)}`;const line2=`\\u670d\\u9970 ${trim(clothingText(track),18)}`;const labelChars=Math.max(7,Math.min(24,Math.floor(bw/font))),lx=Math.max(font*.3,Math.min(w-font*labelChars,x+font*.25)),ly=Math.max(font*1.2,Math.min(h-font*1.5,y+font*1.25));addText(group,trim(line1,labelChars),lx,ly,font,color);addText(group,trim(line2,labelChars),lx,Math.min(h-font*.3,ly+font*1.2),font*.86,'#f2f7ff','500');svg.append(group)}const list=$('person_list'),signature=JSON.stringify([selectedTrack,tracks.map(t=>[t.track_id,postureText(t),actionText(t),clothingText(t),t.clo,t.met])]),updateList=list.dataset.signature!==signature;if(updateList){list.replaceChildren();list.dataset.signature=signature;list.className=tracks.length?'':'no-person'}if(!tracks.length){if(updateList)list.textContent='\\u6b64\\u5e27\\u672a\\u68c0\\u51fa\\u53ef\\u8ddf\\u8e2a\\u4eba\\u7269';$('track_detail').textContent='\\u6b64\\u5e27\\u672a\\u68c0\\u51fa\\u53ef\\u8ddf\\u8e2a\\u4eba\\u7269\\uff1b\\u4e0d\\u4ee3\\u8868\\u753b\\u9762\\u4e2d\\u4e00\\u5b9a\\u65e0\\u4eba\\u3002';return}const selected=tracks.find(t=>String(t.track_id)===selectedTrack)||tracks[0];const detail=$('track_detail');detail.replaceChildren();const main=document.createElement('div');main.textContent=`#${selected.track_id} \\u00b7 ${postureText(selected)} \\u00b7 ${actionText(selected)}`;const clothes=document.createElement('div');clothes.textContent=`\\u670d\\u9970\\u5019\\u9009\\uff1a${clothingText(selected)}`;const thermal=document.createElement('div');thermal.className='muted';thermal.textContent=`CLO ${valueText(selected.clo)} \\u00b7 MET ${valueText(selected.met)}${selected.clothing_age_s!=null?` \\u00b7 \\u8863\\u7269 ${Number(selected.clothing_age_s).toFixed(1)}s \\u524d\\u66f4\\u65b0`:''}`;detail.append(main,clothes,thermal);if(updateList)for(const t of tracks){const card=document.createElement('button');card.type='button';card.className='person-card'+(String(t.track_id)===selectedTrack?' selected':'');card.setAttribute('aria-pressed',String(String(t.track_id)===selectedTrack));const title=document.createElement('strong');title.textContent=`#${t.track_id} \\u00b7 ${postureText(t)}`;const facts=document.createElement('small');facts.textContent=`${actionText(t)} \\u00b7 ${clothingText(t)}`;const values=document.createElement('small');values.textContent=`clo ${valueText(t.clo)} / met ${valueText(t.met)}`;card.append(title,facts,values);card.addEventListener('click',()=>chooseTrack(t.track_id));list.append(card)}}\\nasync function poll(){try{if(!socket||socket.readyState!==1||now()-lastPush>3000)await refresh()}catch(error){$('error').textContent=error.message;$('connection').textContent='\\u8fde\\u63a5\\u5f02\\u5e38\\uff0c\\u8bf7\\u68c0\\u67e5\\u7f51\\u7edc';$('connection').className='badge'}setTimeout(poll,1000)}\\nfunction connect(){socket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/live');socket.onmessage=event=>{try{lastPush=now();render(JSON.parse(event.data))}catch(error){$('error').textContent=error.message}};socket.onopen=()=>{$('connection').textContent='\\u5b9e\\u65f6\\u8fde\\u63a5\\u5df2\\u5efa\\u7acb';$('connection').className='badge online';refresh().catch(error=>$('error').textContent=error.message)};socket.onerror=()=>{$('connection').textContent='\\u8fde\\u63a5\\u4e0d\\u7a33\\uff0c\\u6b63\\u5728\\u91cd\\u8fde';$('connection').className='badge'};socket.onclose=()=>{$('connection').textContent='\\u8fde\\u63a5\\u5df2\\u65ad\\u5f00\\uff0c\\u6b63\\u5728\\u91cd\\u8fde';$('connection').className='badge';setTimeout(connect,1000)}}\\nnew ResizeObserver(()=>{if(displayed)drawOverlay()}).observe($('stage'));document.addEventListener('fullscreenchange',()=>{setTimeout(drawOverlay,50)});setInterval(updateStatus,250);connect();connectVideo();poll();\\n</script></body></html>\\n\";return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "state_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 280,
+    "name": "/api/state",
+    "url": "/api/state",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "state"
+      ]
+    ]
+  },
+  {
+    "id": "state",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 320,
+    "name": "state",
+    "func": "\nfunction compactObs(o){if(!o)return null;const v={};for(const k of ['project','run_id','arm','source','source_frame_id','source_pts_s','encoded_size','jpeg_sha256','kind','producer','status','infer_ms'])if(k in o)v[k]=o[k];\n v.tracks=(o.tracks||[]).map(t=>({track_id:t.track_id,bbox:t.bbox,posture:{state:t.posture?.state,reason:t.posture?.reason},action:{value:t.action?.value,reason:t.action?.reason},clothing:(t.clothing||[]).map(g=>({category:g.category,confidence:g.confidence,ambiguous_with:g.ambiguous_with})),clothing_age_s:t.clothing_age_s,clo:t.clo,met:t.met,estimate_status:t.estimate_status}));return v;}\nfunction stateSnapshot(){const o=global.get('observation')||null,l=global.get('llm')||null,p=global.get('preview_meta')||null;let llm=null,meta=null;\n if(l){llm={};for(const k of ['project','run_id','arm','source_frame_id','model','status','draft','semantic_flags','generation_ms','error'])if(k in l)llm[k]=l[k];}\n if(p){meta={};for(const k of ['preview_id','run_id','source_frame_id','source_pts_s','encoded_size','preview_size','jpeg_sha256','preview_jpeg_sha256'])if(k in p)meta[k]=p[k];}\n return {active:global.get('active')||null,observation:compactObs(o),llm,\n observation_age_s:o?(Date.now()-global.get('obs_wall'))/1000:null,llm_age_s:l?(Date.now()-global.get('llm_wall'))/1000:null,\n preview_id:global.get('preview_id')||null,preview_meta:meta,llm_id:global.get('llm_id')||null,run_error:global.get('run_error')||null};}\nmsg.headers={'Cache-Control':'no-store'};msg.payload=stateSnapshot();return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "raw_state_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 360,
+    "name": "/api/raw-state",
+    "url": "/api/raw-state",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "raw_state"
+      ]
+    ]
+  },
+  {
+    "id": "raw_state",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 400,
+    "name": "raw_state",
+    "func": "msg.headers={'Cache-Control':'no-store'};msg.payload={active:global.get('active')||null,observation:global.get('observation')||null,llm:global.get('llm')||null};return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "preview_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 440,
+    "name": "/api/preview",
+    "url": "/api/preview",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "preview"
+      ]
+    ]
+  },
+  {
+    "id": "preview",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 480,
+    "name": "preview",
+    "func": "\nconst requested=msg.req.query.v,id=requested||global.get('preview_id'),cache=global.get('preview_cache')||{};\nconst entry=id&&Object.prototype.hasOwnProperty.call(cache,id)?cache[id]:null,active=global.get('active');\nmsg.headers={'Cache-Control':'no-store'};\nif(!entry||!active||entry.meta.run_id!==active.run_id){msg.statusCode=requested?410:404;msg.headers['Content-Type']='application/json';msg.payload={error:'该帧已过期，等待最新画面'};return msg;}\nmsg.headers['X-Preview-Id']=id;\nmsg.headers['Content-Type']='image/jpeg';msg.payload=entry.jpeg;return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "preview_meta_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 520,
+    "name": "/api/preview-meta",
+    "url": "/api/preview-meta",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "preview_meta"
+      ]
+    ]
+  },
+  {
+    "id": "preview_meta",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 560,
+    "name": "preview_meta",
+    "func": "\nconst requested=msg.req.query.v,id=requested||global.get('preview_id'),cache=global.get('preview_cache')||{};\nconst entry=id&&Object.prototype.hasOwnProperty.call(cache,id)?cache[id]:null,active=global.get('active');\nmsg.headers={'Cache-Control':'no-store'};\nif(!entry||!active||entry.meta.run_id!==active.run_id){msg.statusCode=requested?410:404;msg.headers['Content-Type']='application/json';msg.payload={error:'该帧已过期，等待最新画面'};return msg;}\nmsg.headers['X-Preview-Id']=id;\nmsg.headers['Content-Type']='application/json';msg.payload=entry.meta;return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "preview_frame_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 600,
+    "name": "/api/preview-frame",
+    "url": "/api/preview-frame",
+    "method": "get",
+    "upload": false,
+    "wires": [
+      [
+        "preview_frame"
+      ]
+    ]
+  },
+  {
+    "id": "preview_frame",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 640,
+    "name": "preview_frame",
+    "func": "\nconst requested=msg.req.query.v,id=requested||global.get('preview_id'),cache=global.get('preview_cache')||{};\nconst entry=id&&Object.prototype.hasOwnProperty.call(cache,id)?cache[id]:null,active=global.get('active');\nmsg.headers={'Cache-Control':'no-store'};\nif(!entry||!active||entry.meta.run_id!==active.run_id){msg.statusCode=requested?410:404;msg.headers['Content-Type']='application/json';msg.payload={error:'该帧已过期，等待最新画面'};return msg;}\nmsg.headers['X-Preview-Id']=id;\nmsg.headers['Content-Type']='application/octet-stream';msg.payload=entry.packet;return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ]
+    ]
+  },
+  {
+    "id": "start_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 680,
+    "name": "/api/start",
+    "url": "/api/start",
+    "method": "post",
+    "upload": false,
+    "wires": [
+      [
+        "start"
+      ]
+    ]
+  },
+  {
+    "id": "start",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 720,
+    "name": "start",
+    "func": "const project=\"abc20261102\",root=\"labs/abc20261102/v1\";\n\nconst v=msg.payload||{};\nif(global.get('active')){msg.statusCode=409;msg.payload={error:'已有实验运行，请先停止'};return [msg,null,null];}\nif(!['A','B','C'].includes(v.arm)||!['replay','camera'].includes(v.source)||!Number.isFinite(v.seconds)||v.seconds<1||v.seconds>3600){msg.statusCode=400;msg.payload={error:'无效参数'};return [msg,null,null];}\nconst run={project,op:'start',run_id:global.get('crypto').randomUUID(),arm:v.arm,source:v.source,seconds:v.seconds,issued_ms:Date.now()};\nglobal.set('active',run);for(const k of ['observation','llm','preview','preview_id','preview_meta','preview_frame_id','llm_id','run_error'])global.set(k,null);global.set('preview_cache',{});\nmsg.payload=run;\nreturn [msg,{topic:root+'/commands',payload:JSON.stringify(run)}, {payload:run,delay:run.seconds*1000}];\n",
+    "outputs": 3,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ],
+      [
+        "mqtt_out"
+      ],
+      [
+        "timer"
+      ]
+    ]
+  },
+  {
+    "id": "stop_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 760,
+    "name": "/api/stop",
+    "url": "/api/stop",
+    "method": "post",
+    "upload": false,
+    "wires": [
+      [
+        "stop"
+      ]
+    ]
+  },
+  {
+    "id": "stop",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 800,
+    "name": "stop",
+    "func": "const project=\"abc20261102\",root=\"labs/abc20261102/v1\";\n\nconst active=global.get('active');\nif(!active){msg.payload={status:'idle'};return [msg,null];}\nconst cmd={...active,op:'stop',issued_ms:Date.now()};global.set('active',null);\n for(const k of ['observation','llm','preview','preview_id','preview_meta','preview_frame_id','llm_id','run_error'])global.set(k,null);global.set('preview_cache',{});\nmsg.payload={status:'stopping',run_id:cmd.run_id};return [msg,{topic:root+'/commands',payload:JSON.stringify(cmd)}];\n",
+    "outputs": 2,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ],
+      [
+        "mqtt_out"
+      ]
+    ]
+  },
+  {
+    "id": "timer",
+    "type": "delay",
+    "z": "lab",
+    "x": 250,
+    "y": 840,
+    "name": "Per-run deadline",
+    "pauseType": "delayv",
+    "timeout": "60",
+    "timeoutUnits": "seconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "wires": [
+      [
+        "auto_stop"
+      ]
+    ]
+  },
+  {
+    "id": "auto_stop",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 880,
+    "name": "Stop only matching run",
+    "func": "const project=\"abc20261102\",root=\"labs/abc20261102/v1\";\n\nconst a=global.get('active');if(!a||a.run_id!==msg.payload.run_id)return null;\nglobal.set('active',null);for(const k of ['observation','llm','preview','preview_id','preview_meta','preview_frame_id','llm_id','run_error'])global.set(k,null);global.set('preview_cache',{});\nreturn {topic:root+'/commands',payload:JSON.stringify({...a,op:'stop',issued_ms:Date.now()})};\n",
+    "outputs": 1,
+    "wires": [
+      [
+        "mqtt_out"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out",
+    "type": "mqtt out",
+    "z": "lab",
+    "x": 250,
+    "y": 920,
+    "name": "Only new broker",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "broker",
+    "wires": []
+  },
+  {
+    "id": "lease_tick",
+    "type": "inject",
+    "z": "lab",
+    "x": 250,
+    "y": 960,
+    "name": "Reannounce active session for reconnects",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": "0.1",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "wires": [
+      [
+        "lease_announce"
+      ]
+    ]
+  },
+  {
+    "id": "lease_announce",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 1000,
+    "name": "Current session with remaining lease",
+    "func": "const project=\"abc20261102\",root=\"labs/abc20261102/v1\";\n\nconst active=global.get('active');if(!active)return null;\nconst now=Date.now(),remaining=Math.ceil((active.issued_ms+active.seconds*1000-now)/1000);\nif(remaining<=0)return null;\nreturn {topic:root+'/commands',payload:JSON.stringify({...active,issued_ms:now,seconds:remaining,lease_refresh:true})};\n",
+    "outputs": 1,
+    "wires": [
+      [
+        "mqtt_out"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_observations",
+    "type": "mqtt in",
+    "z": "lab",
+    "x": 250,
+    "y": 1040,
+    "name": "observations",
+    "topic": "labs/abc20261102/v1/runs/+/observations",
+    "qos": "0",
+    "datatype": "buffer",
+    "broker": "broker",
+    "nl": false,
+    "rap": false,
+    "rh": 0,
+    "wires": [
+      [
+        "collect"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_events",
+    "type": "mqtt in",
+    "z": "lab",
+    "x": 250,
+    "y": 1080,
+    "name": "events",
+    "topic": "labs/abc20261102/v1/runs/+/events",
+    "qos": "0",
+    "datatype": "buffer",
+    "broker": "broker",
+    "nl": false,
+    "rap": false,
+    "rh": 0,
+    "wires": [
+      [
+        "collect"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_llm",
+    "type": "mqtt in",
+    "z": "lab",
+    "x": 250,
+    "y": 1120,
+    "name": "llm",
+    "topic": "labs/abc20261102/v1/runs/+/llm",
+    "qos": "0",
+    "datatype": "buffer",
+    "broker": "broker",
+    "nl": false,
+    "rap": false,
+    "rh": 0,
+    "wires": [
+      [
+        "collect"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_preview",
+    "type": "mqtt in",
+    "z": "lab",
+    "x": 250,
+    "y": 1160,
+    "name": "preview",
+    "topic": "labs/abc20261102/v1/runs/+/preview",
+    "qos": "0",
+    "datatype": "buffer",
+    "broker": "broker",
+    "nl": false,
+    "rap": false,
+    "rh": 0,
+    "wires": [
+      [
+        "collect"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_commands",
+    "type": "mqtt in",
+    "z": "lab",
+    "x": 250,
+    "y": 1200,
+    "name": "Command timestamps",
+    "topic": "labs/abc20261102/v1/commands",
+    "qos": "1",
+    "datatype": "buffer",
+    "broker": "broker",
+    "nl": false,
+    "rap": false,
+    "rh": 0,
+    "wires": [
+      [
+        "collect"
+      ]
+    ]
+  },
+  {
+    "id": "collect",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 1240,
+    "name": "Isolated run filtering + metrics",
+    "func": "const project=\"abc20261102\",root=\"labs/abc20261102/v1\";\n\nfunction compactObs(o){if(!o)return null;const v={};for(const k of ['project','run_id','arm','source','source_frame_id','source_pts_s','encoded_size','jpeg_sha256','kind','producer','status','infer_ms'])if(k in o)v[k]=o[k];\n v.tracks=(o.tracks||[]).map(t=>({track_id:t.track_id,bbox:t.bbox,posture:{state:t.posture?.state,reason:t.posture?.reason},action:{value:t.action?.value,reason:t.action?.reason},clothing:(t.clothing||[]).map(g=>({category:g.category,confidence:g.confidence,ambiguous_with:g.ambiguous_with})),clothing_age_s:t.clothing_age_s,clo:t.clo,met:t.met,estimate_status:t.estimate_status}));return v;}\nfunction stateSnapshot(){const o=global.get('observation')||null,l=global.get('llm')||null,p=global.get('preview_meta')||null;let llm=null,meta=null;\n if(l){llm={};for(const k of ['project','run_id','arm','source_frame_id','model','status','draft','semantic_flags','generation_ms','error'])if(k in l)llm[k]=l[k];}\n if(p){meta={};for(const k of ['preview_id','run_id','source_frame_id','source_pts_s','encoded_size','preview_size','jpeg_sha256','preview_jpeg_sha256'])if(k in p)meta[k]=p[k];}\n return {active:global.get('active')||null,observation:compactObs(o),llm,\n observation_age_s:o?(Date.now()-global.get('obs_wall'))/1000:null,llm_age_s:l?(Date.now()-global.get('llm_wall'))/1000:null,\n preview_id:global.get('preview_id')||null,preview_meta:meta,llm_id:global.get('llm_id')||null,run_error:global.get('run_error')||null};}\n\nconst channel=msg.topic.split('/').pop(), active=global.get('active');let v;\ntry {\n if(channel==='preview') {const n=msg.payload.readUInt32BE(0);if(n>65536||n+4>=msg.payload.length)return null;v=JSON.parse(msg.payload.subarray(4,4+n).toString());\n  if(v.project!==project)return null;\n  if(active&&v.run_id===active.run_id){\n   const id=v.run_id+':'+v.source_frame_id;v.preview_id=id;\n   const cache=global.get('preview_cache')||{};cache[id]={meta:v,packet:msg.payload,jpeg:msg.payload.subarray(4+n)};\n   const keys=Object.keys(cache);for(const k of keys.slice(0,Math.max(0,keys.length-24)))delete cache[k];global.set('preview_cache',cache);\n   const previous=global.get('preview_frame_id');\n   if(previous===null||previous===undefined||v.source_frame_id>=previous){global.set('preview',msg.payload.subarray(4+n));global.set('preview_meta',v);global.set('preview_frame_id',v.source_frame_id);global.set('preview_id',id);}\n  }\n } else {v=JSON.parse(msg.payload.toString());if(v.project!==project)return null;\n  if(active&&v.run_id===active.run_id){\n   if(channel==='observations'){global.set('observation',v);global.set('obs_wall',Date.now());}\n   if(channel==='llm'){global.set('llm',v);global.set('llm_wall',Date.now());global.set('llm_id',v.run_id+':'+v.source_frame_id);}\n   if(channel==='events'&&v.kind==='failed')global.set('run_error',v.error||'实验进程失败，请查看本次日志');\n  }\n }\n const received=global.get('perf').now();const id=v.run_id+':'+v.source_frame_id;\n if(channel==='preview'||channel==='llm'){const times=global.get('ack_times')||{};times[channel+':'+id]=received;\n  const keys=Object.keys(times);for(const k of keys.slice(0,Math.max(0,keys.length-256)))delete times[k];global.set('ack_times',times);}\n msg.payload=JSON.stringify({channel,console_boot_id:global.get('console_boot_id'),received_mono_ms:received,received_wall_ms:Date.now(),payload:v});\n const frame=channel==='preview'&&active&&v.run_id===active.run_id&&v.preview_id===global.get('preview_id')?{payload:global.get('preview_cache')[v.preview_id].packet}:null;\n return [msg,{payload:JSON.stringify(stateSnapshot())},frame];\n}catch(e){return null;}\n",
+    "outputs": 3,
+    "wires": [
+      [
+        "log"
+      ],
+      [
+        "live_out"
+      ],
+      [
+        "video_out"
+      ]
+    ]
+  },
+  {
+    "id": "live_out",
+    "type": "websocket out",
+    "z": "lab",
+    "x": 250,
+    "y": 1280,
+    "name": "Native Node-RED live push",
+    "server": "live_ws",
+    "client": "",
+    "wires": []
+  },
+  {
+    "id": "video_out",
+    "type": "websocket out",
+    "z": "lab",
+    "x": 250,
+    "y": 1320,
+    "name": "Native binary preview push",
+    "server": "video_ws",
+    "client": "",
+    "wires": []
+  },
+  {
+    "id": "ack_in",
+    "type": "http in",
+    "z": "lab",
+    "x": 250,
+    "y": 1360,
+    "name": "/api/ack",
+    "url": "/api/ack",
+    "method": "post",
+    "upload": false,
+    "wires": [
+      [
+        "ack"
+      ]
+    ]
+  },
+  {
+    "id": "ack",
+    "type": "function",
+    "z": "lab",
+    "x": 250,
+    "y": 1400,
+    "name": "ack",
+    "func": "\nconst v=msg.payload||{}, a=global.get('active'), times=global.get('ack_times')||{};\nconst received=times[v.kind+':'+v.id];\nif(!a||a.run_id!==v.run_id||!['preview','llm'].includes(v.kind)||typeof v.id!=='string'||!v.id.startsWith(v.run_id+':')||received===undefined){msg.statusCode=409;msg.payload={error:'旧结果或无对应的服务器记录'};return [msg,null];}\ndelete times[v.kind+':'+v.id];global.set('ack_times',times);\nconst row={channel:'display_ack',console_boot_id:global.get('console_boot_id'),received_mono_ms:global.get('perf').now(),payload:{...v,console_to_ack_ms:global.get('perf').now()-received}};\nmsg.payload={ok:true};return [msg,{payload:JSON.stringify(row)}];\n",
+    "outputs": 2,
+    "noerr": 0,
+    "wires": [
+      [
+        "http_response"
+      ],
+      [
+        "log"
+      ]
+    ]
+  },
+  {
+    "id": "log",
+    "type": "file",
+    "z": "lab",
+    "x": 250,
+    "y": 1440,
+    "name": "New project JSONL only",
+    "filename": "/data/lab/events.jsonl",
+    "filenameType": "str",
+    "appendNewline": true,
+    "createDir": true,
+    "overwriteFile": "false",
+    "encoding": "utf8",
+    "wires": [
+      []
+    ]
+  }
+]

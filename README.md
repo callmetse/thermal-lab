@@ -69,10 +69,12 @@ thermal-lab/
 │   ├── environment-longterm/    # alternative gateway with long-term storage
 │   └── collaboration/           # collaboration bundle (overlay on the base vision tree)
 ├── deployments/                 # Read-only archive of what a device actually ran
-│   └── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
+│   ├── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
+│   └── control-20261120/        # Control-host Node-RED flows, units and console files
 ├── docs/
 │   ├── system-verification.md   # test evidence, worker identities, gaps
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
+│   ├── frontend-20261120.md     # experiment bench: routes and deployed front-end files
 │   ├── environment-gateway.md   # gateway behaviour and worked example
 │   └── README.md                # review entry point per role
 ├── .github/workflows/tests.yml  # CI: five suites on Linux
@@ -179,6 +181,7 @@ manifests.
 | Supervisor template vs generator | the archived template matches the Pi; `deploy.py` writes a shorter configuration without `audio-profile` | the generator is the older variant; do not regenerate over a deployed host |
 | `vision/tools/deploy_ui_d.py` | withheld: contains a plaintext console password and a local secret-store path | excluded rather than shipping a working credential |
 | Deployed vision differs from this tree | the Pi runs extended modules plus a `dataset-api` program; 26 files differ in content | see `docs/system-verification.md` before treating `vision/` as the deployed source |
+| Front-end bench not current | `vision/deploy/nodered/` holds an older `page.html` (52 KB vs 35 KB) and `flows-native.json` (92 KB vs the control host's 102 KB) | take the deployed flows as truth; see `docs/frontend-20261120.md` |
 
 ## 🔍 Evidence Status
 

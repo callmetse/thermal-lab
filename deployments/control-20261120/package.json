@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "abc20261102-console",
+  "version": "0.1.0",
+  "dependencies": {
+    "node-red": "4.1.1",
+    "bcryptjs": "2.4.3"
+  }
+}

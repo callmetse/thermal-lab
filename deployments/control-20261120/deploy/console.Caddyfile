@@ -1,0 +1,30 @@
+{
+    admin off
+    auto_https off
+    persist_config off
+}
+
+http://:28880 {
+    bind 0.0.0.0
+    @lan remote_ip private_ranges
+    handle @lan {
+        basic_auth {
+            {$ABC_CONSOLE_USER} {$ABC_CONSOLE_HASH}
+        }
+        @preview path /live-video /api/preview /api/preview-frame /api/preview-meta
+        handle @preview {
+            reverse_proxy 127.0.0.1:28990 {
+                flush_interval -1
+            }
+        }
+        handle {
+            redir / /lab 302
+            reverse_proxy 127.0.0.1:28881 {
+                flush_interval -1
+            }
+        }
+    }
+    handle {
+        respond "Local network only" 403
+    }
+}

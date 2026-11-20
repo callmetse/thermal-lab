@@ -1,0 +1,140 @@
+{
+  "created": "2026-11-02",
+  "source_policy": "read-only copies; no original modified; no runtime dependency on old directories",
+  "local_edits": [
+    "Remove hardcoded source-tree sys.path",
+    "Require new project model assets via ABC_ASSETS_DIR",
+    "Extract posture geometry without MET table",
+    "Keep only garment association helpers from infer.py; remove unused old CLI/LLM entry points",
+    "Force rect=False for pose/clothing to match static NCNN square input; unchanged original weights",
+    "Remove max3 and 18% person-height output filters; use configurable uncapped tracked-person selection",
+    "Optional batched FP32 TCN execution; exact checkpoints, thresholds and person filters unchanged"
+  ],
+  "files": [
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/infer.py",
+      "destination": "vendor/algorithm/infer.py",
+      "source_sha256": "08c99048cc43e11e21987a31555121189fd29acbfc2468e6f38722ca645883b7",
+      "copy_sha256": "f5abf1b95bc5e236e0c364f826a26a132b4349d9bb7c8b1210ac1177687e13ea"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/clomet.py",
+      "destination": "vendor/algorithm/clomet.py",
+      "source_sha256": "71432e3c0859cd19aa72d04503fc7bf72988b005b131c9ea7b5d82adcd2ebc19",
+      "copy_sha256": "71432e3c0859cd19aa72d04503fc7bf72988b005b131c9ea7b5d82adcd2ebc19"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/reference_tables.json",
+      "destination": "vendor/algorithm/reference_tables.json",
+      "source_sha256": "eb2c95eef3d194be7dc79d100a0dae26f427db8123d0b1cf28861a34bc139b71",
+      "copy_sha256": "eb2c95eef3d194be7dc79d100a0dae26f427db8123d0b1cf28861a34bc139b71"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/track_video.py",
+      "destination": "vendor/algorithm/temporal_v1/track_video.py",
+      "source_sha256": "9102b2544479e5ff89647c21055b15d502de6b6bb2e55149a8cbdbf8cd40865a",
+      "copy_sha256": "8c8c4d6bd1823ccf418eb38f354cb2410ac6be4b08f712be1ad0a421dcd589e8",
+      "initial_copy_sha256": "de2e5a673d4b2aa06f42a5dc6eea86edc4c91a5b96fa1c98dcae39043fecca9c"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/action_model.py",
+      "destination": "vendor/algorithm/temporal_v1/action_model.py",
+      "source_sha256": "d634c60fd67507bb884abe137798d4b1c864e5231aff088ce31098bacc9566e8",
+      "copy_sha256": "d634c60fd67507bb884abe137798d4b1c864e5231aff088ce31098bacc9566e8"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/temporal.py",
+      "destination": "vendor/algorithm/temporal_v1/temporal.py",
+      "source_sha256": "daf4ca31a44be84f42a121f6b338eb26b88391c41a43f8e1787c502f3c9ce664",
+      "copy_sha256": "daf4ca31a44be84f42a121f6b338eb26b88391c41a43f8e1787c502f3c9ce664"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/bytetrack_temporal.yaml",
+      "destination": "vendor/algorithm/temporal_v1/bytetrack_temporal.yaml",
+      "source_sha256": "63304b2e149906dac3d4ca61c1aa36950132739e374bffe1643ffce5bb75674b",
+      "copy_sha256": "63304b2e149906dac3d4ca61c1aa36950132739e374bffe1643ffce5bb75674b"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/yolo11n-pose.pt",
+      "destination": "assets/yolo11n-pose.pt",
+      "source_sha256": "869e83fcdffdc7371fa4e34cd8e51c838cc729571d1635e5141e3075e9319dc0",
+      "copy_sha256": "869e83fcdffdc7371fa4e34cd8e51c838cc729571d1635e5141e3075e9319dc0"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/clothing_best.pt",
+      "destination": "assets/clothing_best.pt",
+      "source_sha256": "f2c25aad5a1c05bf4a8a0db6b58764545124972a1a733a932583808a78220892",
+      "copy_sha256": "f2c25aad5a1c05bf4a8a0db6b58764545124972a1a733a932583808a78220892"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/03_experiments/yolo11n.pt",
+      "destination": "assets/yolo11n.pt",
+      "source_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+      "copy_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/yolo11n-pose_ncnn_model/metadata.yaml",
+      "destination": "assets/yolo11n-pose_ncnn_model/metadata.yaml",
+      "source_sha256": "fc8c7f40a37323ca66b591db074c2a94be4d8cc276c8d22af82b673be368e707",
+      "copy_sha256": "d5693bb79117f91d395c3817da01e24949828ba677803e71fcacd08b98dbc41b",
+      "initial_copy_sha256": "fc8c7f40a37323ca66b591db074c2a94be4d8cc276c8d22af82b673be368e707"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/yolo11n-pose_ncnn_model/model.ncnn.bin",
+      "destination": "assets/yolo11n-pose_ncnn_model/model.ncnn.bin",
+      "source_sha256": "531602e61a5e77651873109d13bc06199c274b5ece42aa608a95cbca28e21fea",
+      "copy_sha256": "531602e61a5e77651873109d13bc06199c274b5ece42aa608a95cbca28e21fea"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/yolo11n-pose_ncnn_model/model.ncnn.param",
+      "destination": "assets/yolo11n-pose_ncnn_model/model.ncnn.param",
+      "source_sha256": "767e9272e6c36016703efd3d4bcfd8417a2c7b5450932958e83308f93e3f50f7",
+      "copy_sha256": "767e9272e6c36016703efd3d4bcfd8417a2c7b5450932958e83308f93e3f50f7"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/clothing_best_ncnn_model/metadata.yaml",
+      "destination": "assets/clothing_best_ncnn_model/metadata.yaml",
+      "source_sha256": "f7c959d2e97c1508fd08fd26ed06df2c081848a116c8ca8f481758083c99bc8b",
+      "copy_sha256": "23c65791c2fce26690bcf9af511107cce99a1cd7c6b6bedea2dfd84c72d12856",
+      "initial_copy_sha256": "f7c959d2e97c1508fd08fd26ed06df2c081848a116c8ca8f481758083c99bc8b"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/clothing_best_ncnn_model/model.ncnn.bin",
+      "destination": "assets/clothing_best_ncnn_model/model.ncnn.bin",
+      "source_sha256": "4f7beb798c4535c3a91f89581e1c32a5c0907235fd806a1a43d96fae2b4e2b68",
+      "copy_sha256": "4f7beb798c4535c3a91f89581e1c32a5c0907235fd806a1a43d96fae2b4e2b68"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/pi_pkg/models/clothing_best_ncnn_model/model.ncnn.param",
+      "destination": "assets/clothing_best_ncnn_model/model.ncnn.param",
+      "source_sha256": "128cda38582ea2c66ce839378d6e331db082daaaa5e6059e2096532f88028f89",
+      "copy_sha256": "128cda38582ea2c66ce839378d6e331db082daaaa5e6059e2096532f88028f89"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/runs/A1_tcn_2sec_seed42_r1/best.pt",
+      "destination": "assets/action/best.pt",
+      "source_sha256": "fe4fa89608132f3f6aeb3948d614fb95d2f3cc6a351f2b2bf965c9313ceef051",
+      "copy_sha256": "fe4fa89608132f3f6aeb3948d614fb95d2f3cc6a351f2b2bf965c9313ceef051"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/gpu/algorithm/temporal_v1/runs/A1_tcn_2sec_seed42_r1/results.json",
+      "destination": "assets/action/results.json",
+      "source_sha256": "e44ddfc77bc7dbc33f139700f66d85881bafd66eb2e5875420eadfcf7a4d8997",
+      "copy_sha256": "e44ddfc77bc7dbc33f139700f66d85881bafd66eb2e5875420eadfcf7a4d8997"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/06_v4/common/obs_build.py",
+      "destination": "lab/posture.py",
+      "source_sha256": "9e3d19089ce63d31cc96d49498efb497a4832996039c5676bb93d6668e00b57e",
+      "edit": "only estimate_posture extracted; no posture-to-MET table",
+      "copy_sha256": "fb850d1ca0382a14b8eee8eaba2ae36aad831dabb5476289bacfdc4668b1e331"
+    },
+    {
+      "source": "/mnt/d/视觉模块v4/01_baseline/runtime/pi/samples/A.mp4",
+      "destination": "data/replay.mp4",
+      "source_sha256": "5f4078252deeafdd3be7988ba8bcc8c040c87011b34b143271fa41d8871e635f",
+      "copy_sha256": "5f4078252deeafdd3be7988ba8bcc8c040c87011b34b143271fa41d8871e635f",
+      "labels": "none; not accuracy ground truth"
+    }
+  ]
+}
