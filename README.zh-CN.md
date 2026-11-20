@@ -1,122 +1,170 @@
-# 室内热环境 · 边云协作实验平台（中文说明）
+# 室内热环境：边云协作的视觉—环境配对观测平台
 
-ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· GPU 云端推断 · 控制云 Node-RED 控制台
+室内热舒适研究要求把空间状态与人员状态记录在同一条时间轴上，并且能够在事后复查。本仓库记录
+为此搭建的一套实验平台：一个传感器节点、一级边缘计算、一级 GPU 推理与一台控制主机，以及
+2026 年 11 月 20 日从三台在役机器上回收的源码树。
 
-英文版见 [README.md](README.md)。
+本仓库是源码与证据的评审件。它收录代码、部署记录与验证材料；模型权重、数据库、录像与凭据不在
+其中，公开的主机、账号与端口均为示例值。
 
-## ⚠️ 项目状态
+## 一、现状
 
-本仓库是**工程评审用的源码树**，内容就是设备上运行的构建：`vision/lab/`（28 个模块，其中 `worker.py`、`llm.py` 取 GPU 上更新的一版，2026-11-18 17:03）、`acoustic/`、`environment/`。
+`vision/lab/` 是现网观测到的最新构建：`worker.py` 与 `llm.py` 取自 GPU 实例 2026 年 11 月 18 日
+17:03 的写入版本，该包其余 26 个模块在树莓派与 GPU 上逐字节一致。
 
-- **已核实（2026-11-20 22:16）**：7 个常驻服务的进程启动时间都晚于代码最后一次修改，Pi 的 50 个源文件与抓取时哈希一致；本地 330 个测试用例通过（12 个跳过，理由写在代码里），CI 通过。
-- **仍需注意**：树莓派跑的是稍早的一对 `worker.py`、`llm.py`（10:55 那版，完整 Pi 源码在 [`sources/pi-20261120/`](sources/pi-20261120/)）；控制云仍是旧基础版（完整源码在 [`sources/control-20261120/`](sources/control-20261120/)）；GPU 完整源码在 [`sources/gpu-20261120/`](sources/gpu-20261120/)。ESP32 只有 ESPHome 定义，未编译烧录；部署脚本是历史材料，主机路径需按现场核对。
-- **已脱敏**：地址、账号、端口替换为示例值，直接运行连不上真机。
-
-## 一、这个仓库是什么
-
-把此前分散在多个目录的源码整理成一棵可评审的树，目的是让人在一个地方看清三件事：哪一份是基础版、哪一份是历史扩展版、哪一处是真缺口。
-
-| 目录 | 职责 |
-|---|---|
-| `environment/` | 环境感知：HTTP 网关、事件校验、SQLite 存储、ESP32 固件、树莓派启动模板 |
-| `vision/` | 视觉：边缘 worker、摄像头、预览与媒体传输、云端推断、Node-RED 流程、systemd 部署定义 |
-| `acoustic/` | 音频：采集、唤醒词、会话控制、云端语音识别 worker、仪表盘、Supervisor 模板 |
-| `revisions/vision-base-20261120/` | **旧基础版归档**（21 个视觉模块 + 知识检索包 + 一个基础版专用测试） |
-| `revisions/vision-extension/` | 历史扩展版视觉快照（数据集 API、采集监控、知识检索） |
-| `revisions/environment-longterm/` | 环境网关的长期记录变体 |
-| `revisions/collaboration/` | 协作补丁包（**不是独立包**，测试需叠加基础视觉包） |
-| `sources/pi-20261120/` | **Pi 现网快照**（2026-11-20 只读取回、已脱敏，含 SHA256SUMS）；只读参考，不要改 |
-| `sources/gpu-20261120/` | **GPU 现网快照**（扩展版 lab 包、deploy、vendor，脱敏后 41 个文件） |
-| `sources/control-20261120/` | **控制云快照**（lab 代码、Node-RED flows、systemd、Caddyfile 等，脱敏后 69 个文件） |
-| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比，`docs/deployments-20261120.md` 是四端视觉包的对比，`docs/gpu-endpoint.md` 说明 GPU 端口每次开机都会变，`docs/architecture.md` 与 `docs/figures/abcd-architecture.png` 是 A/B/C/D 四方案共享云侧的结构图，`docs/runtime-verification.md` 证明设备进程跑的就是快照里的字节；`docs/figures/bench/` 是实验台（`/lab` 待命与运行中、`/data` 数据页）的实拍截图 |
-
-先读这两份：
-
-1. [docs/system-verification.md](docs/system-verification.md) — 测试命令与结果、四个同名 `worker.py` 的身份、音频缺口、已验证/未验证的边界。
-2. [docs/environment-gateway.md](docs/environment-gateway.md) — 环境网关的行为与可复现示例。
-
-## 二、同名文件不等于同一份代码（重点）
-
-仓库里有 **4 个** `worker.py`，请按「路径 + SHA-256」识别，不要按文件名引用：
-
-| 路径 | 行数 | SHA-256（前 16 位） | 身份 |
-|---|---|---|---|
-| `vision/lab/worker.py` | 805 | `fe10e1e8d14b1c5f` | 基础版视觉 |
-| `revisions/vision-extension/lab/worker.py` | 1074 | `4b277770d4b58f13` | 历史扩展版视觉 |
-| `revisions/collaboration/worker.py` | 761 | `026d06a8824b44e9` | 协作补丁包变体 |
-| `acoustic/worker.py` | 425 | `c4bf1ab017a0d572` | 音频云端推理（另一子系统） |
-
-摘要取**提交里的内容**（LF 换行），和 GitHub 上直接下载的文件一致；早先在 Windows 工作区算出的值不同，比对时以上表为准。Pi 现网的实际版本与这四份都不一样，见 [docs/system-verification.md](docs/system-verification.md) 的"Pi 现网比对"一节。
-
-## 三、已知缺口（需要确认或补材料）
-
-| 缺口 | 现状 | 影响 |
+| 结论 | 证据 | 状态 |
 |---|---|---|
-| `setup_capture.sh` | **在 Pi 上找到了**（`/home/pi/mm_audio_v1/setup_capture.sh`，2026-11-20 读取），但所有源码目录都没有 | 采集 profile 步骤只能从设备上取回，仓库还复现不了 |
-| `gateway.sh` | 由 `acoustic/deploy.py` 部署时生成；生成的这份存在 Pi 上 | 网关程序无法只凭本仓库复现（依赖仓外 `console-auth.env` 与控制云 Caddy） |
-| `utt_listener.py` 路径 | 源码在 `acoustic/tools/`，启动脚本从服务根目录启动 | 部署时须复制或改启动路径 |
-| 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
-| `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
-| 仓库 = GPU 最新构建，Pi/控制云仍是变体 | 运行态 2026-11-20 22:16 已核（7 个服务）；仓库 = GPU 构建（含其 `worker.py`、`llm.py`）；Pi 差这两个文件（10:55 版，完整树在 `sources/pi-20261120/`），控制云仍旧基础版 | 见 `docs/deployments-20261120.md` |
-| 仓库已是 Pi 现网版 | `vision/`、`acoustic/`、`environment/` 已换成 Pi 跑的那份（28 个视觉模块）；GPU 差的只是 `worker.py`、`llm.py`，控制云还是旧基础版 | 见 `docs/deployed-baseline.md` 与 `docs/deployments-20261120.md` |
-| 视觉代码四端不一致 | Pi 与 GPU 是扩展版（仅 `worker.py`/`llm.py` 不同），控制云是旧基础版，仓库是基础版；`worker.py` 出现了 5 个不同构建 | 任何覆盖前先按 `docs/deployments-20261120.md` 逐文件核对 |
-| 前端实验台不是最新 | 仓库 `page.html` 是 11-16 本地改的（52 KB），两台设备跑的都是 11-03 版（35 KB）；控制云 `flows-native.json`（11-17，102 KB）比仓库新 | 三份拷贝各有"最新"的部分，逐文件核对，见 `docs/frontend-20261120.md` |
+| 七个常驻服务执行的即本仓库记录的代码 | 进程启动时间晚于各包最后写入时间，2026-11-20 22:16（JST） | 已核，`docs/runtime-verification.md` |
+| 树莓派源码自抓取后未变 | 50 个文件按摘要比对 | 已核，`docs/runtime-verification.md` |
+| 测试通过 | 330 个用例、12 个跳过、0 失败；CI 覆盖 Python 3.12 与 3.13 | 已核，第五节 |
+| 三端运行同一构建 | 并非如此：现网存在五个 `worker.py` 构建与两个 `llm.py` 构建 | 差异已记录，第四节 |
+| ESP32 可由本树复现 | 仅有 ESPHome 定义，镜像未在此编译或烧录 | 未完成 |
 
-## 四、本地怎么跑（小白 3 分钟版）
+## 二、系统构成
 
-需要 Python 3.12+（本机 3.13 验证，CI 用 3.12/3.13）。
+平台采集实验室房间的环境、视觉与声学证据，供占用状态、热舒适与 HVAC 控制实验使用，分为四级。
 
-```sh
-python -m pip install -r requirements-dev.txt
+**传感器节点。** ESP32-S3 板卡（`env01`）搭载 SHT4x 温湿度传感器与 SCD41 二氧化碳传感器，以
+HTTP 上报测量值，附带序号、时钟状态与心跳，定义见 `environment/firmware/env01.yaml`。
 
-python -m unittest discover -s environment/tests -v                        # 35
-python -m unittest discover -s revisions/environment-longterm/tests -v      # 36
-cd acoustic && python -m unittest discover -s tests -v && cd ..             # 67（5 跳过）
-cp vision/config.example.json vision/config.json
-cd vision && python -m unittest discover -s tests -v && cd ..               # 122
-cd revisions/collaboration && PYTHONPATH=../../vision python -m unittest discover -s tests -v  # 71
+**边缘层。** 树莓派校验并存储传感器事件（SQLite），采集画面与音频，执行端侧检测，并把会话媒体
+转发至云端。环境网关监听 28984 端口，视觉工作进程在 28990 提供预览套接字，数据面运行于
+28992，Caddy 在 28880 作为浏览器实验台的唯一局域网入口。
+
+**GPU 层。** 租用的 GPU 实例承担姿态与动作推理，以及音频推理（语音识别、声音标注）。其访问端口
+在每次实例启动时重新分配，经 SSH 隧道接入。
+
+**控制主机。** 云端主机运行 MQTT broker、Node-RED 流程、Caddy 控制台与会话编排；树莓派经第二条
+隧道以 28881 访问。
+
+环境数据经 HTTP 传输，视觉与音频经 MQTT 传输。实验台对外提供两个界面：`/lab` 用于实验控制，
+`/data` 用于数据检索，路由划分见 `docs/frontend-20261120.md`。
+
+## 三、源码结构
+
+```
+thermal-lab/
+├── environment/                  # 网关、事件契约、SQLite 存储、ESPHome 固件
+│   ├── env_gateway.py            # HTTP 入口、校验、重放防护
+│   ├── env_schema.py             # 事件契约：时钟、序号、量程、质量
+│   ├── env_store.py              # 存储、裁剪、陈旧判定
+│   ├── env_longterm.py           # 长期区间记录
+│   ├── firmware/                 # env01.yaml、HTTP 上报头文件
+│   └── tests/                    # 35 个用例
+├── vision/
+│   ├── lab/                      # 28 个模块：工作进程、相机、预览、传输、归档
+│   ├── deploy/                   # systemd 单元、Node-RED 流程、compose、Caddy
+│   ├── tools/                    # 实验运行器、导出器、置备脚本
+│   ├── vendor/algorithm/         # 时序动作模型
+│   ├── tests/                    # 121 个用例
+│   ├── config.example.json
+│   └── MODEL_MANIFEST.json
+├── acoustic/                     # 采集、语音识别、声音标注；67 个用例
+├── revisions/
+│   ├── vision-base-20261120/     # 早期视觉构建，供对照
+│   ├── vision-extension/         # 同包的扩展变体
+│   ├── environment-longterm/     # 长期记录修订；36 个用例
+│   └── collaboration/            # 协作叠加层；71 个用例
+├── sources/                      # 2026-11-20 回收的源码树
+│   ├── pi-20261120/              # 152 个文件，附 SHA256SUMS
+│   ├── gpu-20261120/             # 41 个文件，附 SHA256SUMS
+│   └── control-20261120/         # 69 个文件，附 SHA256SUMS
+├── docs/                         # 验证、架构、部署与前端记录
+│   └── figures/                  # 架构图与九张实验台截图
+├── .github/workflows/tests.yml   # Linux 上并行运行五套测试，Python 3.12 与 3.13
+├── requirements-dev.txt
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── README.zh-CN.md
 ```
 
-合计 **330 个用例、12 个跳过、0 失败**：5 个是需要 GPU 主机 Sherpa-ONNX 模型的音频用例，7 个是为旧基础版 worker 写的夹具（已隔离，理由写在代码里，见 `docs/deployed-baseline.md`）。
+本树是多组件源码树，不是单一可安装包；各组件自带依赖与测试。
 
-常见问题：
+## 四、构建对应关系
 
-- 视觉测试报 `config.json` 不存在 → 先执行 `cp vision/config.example.json vision/config.json`（该文件不进版本库）。
-- 协作包 import 报错 → 忘了 `PYTHONPATH=../../vision`。
+现网共有四份源码。其 `worker.py` 与 `llm.py` 的摘要区分彼此，其余 26 个视觉模块由树莓派与 GPU
+共用。
 
-## 五、怎么评审、怎么改
+| 源码集 | 位置 | `worker.py` | `llm.py` | 写入时间 |
+|---|---|---|---|---|
+| 本仓库主树 | `vision/lab/` | `19030c2a` | `19e20583` | 2026-11-18 17:03（GPU） |
+| GPU 实例 | `sources/gpu-20261120/` | `19030c2a` | `19e20583` | 2026-11-18 17:03 |
+| 树莓派 | `sources/pi-20261120/` | `c394fad5` | `48f5d2f2` | 2026-11-18 10:55 |
+| 控制主机 | `sources/control-20261120/` | `9d48941e` | `48f5d2f2` | 更早的基础构建 |
+| 早期 GPU 基线 | `revisions/vision-base-20261120/` | `fe10e1e8` | — | 2026-11-16 |
 
-**方式 A：网页上直接改（不用装环境）**
+摘要按提交对象（LF 归一化）计算。逐文件比对（含前端）见 `docs/deployments-20261120.md` 与
+`docs/frontend-20261120.md`。
 
-1. 打开要改的文件 → 右上角铅笔图标（Edit this file）；
-2. 改完在下方选 "Create a new branch for this commit and start a pull request"；
-3. 点 Propose changes → Create pull request，写上理由。
+## 五、验证
 
-**方式 B：提意见，不动代码**
+### 5.1 测试
 
-- 文件页某一行左侧行号 → 出现 "+" → 直接写行内评论；
-- 整块意见用 Issues → New issue，标题写清"文件 + 位置 + 问题"。
+| 套件 | 用例 | 结果 | 命令 |
+|---|---|---|---|
+| 环境网关 | 35 | 通过 | `python -m unittest discover -s environment/tests` |
+| 环境长期记录修订 | 36 | 通过 | `python -m unittest discover -s revisions/environment-longterm/tests` |
+| 声学 | 67 | 通过，5 跳过 | `cd acoustic && python -m unittest discover -s tests` |
+| 视觉 | 121 | 通过，7 跳过 | `cp vision/config.example.json vision/config.json && cd vision && python -m unittest discover -s tests` |
+| 协作叠加层 | 71 | 通过 | `cd revisions/collaboration && PYTHONPATH=../../vision python -m unittest discover -s tests` |
+| 合计 | 330 | 0 失败，12 跳过 | CI：`.github/workflows/tests.yml` |
 
-**方式 C：本地改并跑测试**
+5 个声学用例跳过，是因为所需 Sherpa-ONNX 模型仅存在于 GPU 主机；7 个视觉用例针对早期工作进程的
+夹具，跳过理由写在代码中。
 
-```sh
+### 5.2 运行态核验
+
+2026 年 11 月 20 日 22:16（JST）对树莓派、GPU 与控制主机上的七个常驻服务作了核验：各进程启动时间
+均晚于其执行包的最后写入时间，树莓派 50 个源文件与抓取摘要一致。28 个视觉模块中，23 个与归档逐
+字节相同，5 个仅差脱敏替换。过程与原始输出见 `docs/runtime-verification.md`。
+
+### 5.3 复现
+
+```bash
 git clone https://github.com/callmetse/thermal-lab.git
 cd thermal-lab
-# 改完务必重跑第四节里对应的测试命令，再提交
-git switch -c fix/<short-name>
-git add -A && git commit -m "fix: 改了什么、为什么" && git push -u origin fix/<short-name>
+python -m pip install -r requirements-dev.txt
 ```
 
-**改完请顺手确认**：`docs/system-verification.md` 里的用例数如果变了要同步；不要提交模型权重、数据库、录像、`config.json`、`secrets.yaml`。
+需要 Python 3.12 或更高版本；测试可在 Linux、macOS 与 Windows 上运行，部署目标为 Linux。
 
-## 六、仓库约定
+## 六、文档
 
-- **不提交**：模型权重（`.pt/.onnx/.bin`）、数据库（`.sqlite`）、录像/音频（`.mp4/.wav`）、本地配置（`config.json`、`secrets.yaml`）、密钥（`.pem/.key`）——见 `.gitignore`。
-- **地址与凭据均为示例值**：`192.0.2.x` / `gpu.example.invalid`，端口统一为 `22`，账号与密钥名已替换。
-- **模型校验**：`vision/MODEL_MANIFEST.json`、`acoustic/MODEL_MANIFEST.json` 记录权重文件名、大小与 SHA-256，部署前核对。
-- **提交信息**用英文一句话说明改了什么（`feat:` / `fix:` / `docs:` / `test:` 前缀）。
-- **证据写进文档**：新的部署事实写进 `docs/system-verification.md`，不要只留在聊天记录里。
+| 文档 | 内容 |
+|---|---|
+| [`docs/system-verification.md`](docs/system-verification.md) | 测试证据、构建身份、证据状态与待办核查项 |
+| [`docs/runtime-verification.md`](docs/runtime-verification.md) | 三端进程级核验 |
+| [`docs/deployments-20261120.md`](docs/deployments-20261120.md) | 四端部署矩阵与逐文件差异 |
+| [`docs/frontend-20261120.md`](docs/frontend-20261120.md) | 实验台路由与前端三份拷贝 |
+| [`docs/architecture.md`](docs/architecture.md) | A/B/C/D 四种采集方案与共享云侧管线 |
+| [`docs/environment-gateway.md`](docs/environment-gateway.md) | 网关契约与可复现示例 |
+| [`docs/gpu-endpoint.md`](docs/gpu-endpoint.md) | GPU 端口变更原因与找回方式 |
+| [`docs/deployed-baseline.md`](docs/deployed-baseline.md) | 早期基线构建，存于 `revisions/` |
+| [`docs/pi-diff-20261120.md`](docs/pi-diff-20261120.md) | 仓库与树莓派的逐文件比对 |
+| [`docs/figures/bench/README.md`](docs/figures/bench/README.md) | 九张实验台截图与抓取条件 |
 
-## 七、许可证
+## 七、边界与待定事项
+
+- **非部署镜像。** 本仓库是源码与证据记录，不含模型权重、数据库、录像、日志或运行态。
+- **已脱敏。** 主机、账号、端口与密钥名替换为示例值，本地副本无法接入实验室设备。
+- **GPU 端点不稳定。** 实例按次租用，SSH 端口每次启动重新分配；本文记录的端口仅对抓取当日有效，
+  找回方式见 `docs/gpu-endpoint.md`。
+- **前端存在分叉。** 实验台页面有三份：本仓库的本地修改（2026-11-16，51,882 B）、两台设备实际
+  提供的页面（2026-11-03，35,206 B），以及控制主机上更新的 Node-RED 流程（2026-11-17，
+  102,105 B）。以哪份为准尚未确定。
+- **ESP32。** 仅有 ESPHome 定义，未在此编译或烧录，也没有端到端的传感器验证记录。
+- **部署脚本。** 属历史材料，使用前需按现场重新核对主机路径。
+
+## 八、协作方式
+
+每项改动对应一个分支、一次提交与一个拉取请求；测试套件应保持通过；新的部署事实写入
+`docs/system-verification.md`，不停留在通信记录中。约定详见 `CONTRIBUTING.md`。
+
+## 九、许可证
 
 BSD-2-Clause，见 [LICENSE](LICENSE)。
+
+## 十、联系
+
+维护者：[@callmetse](https://github.com/callmetse)。English version: [README.md](README.md)。
