@@ -47,6 +47,15 @@ Environmental data travel over HTTP; vision and audio travel over MQTT. The benc
 surfaces, `/lab` for experiment control and `/data` for retrieval, whose routing is documented in
 [`docs/frontend-20261120.md`](docs/frontend-20261120.md).
 
+![Figure 1](docs/figures/abcd-architecture.png)
+
+**Figure 1.** Acquisition paths A–D over one cloud-side pipeline. The paths differ in where the frame
+is cut and what is uploaded; all four converge on the same pose–action chain and the same observation
+store. Media traffic uses the plane on 28583 and control traffic the plane on 28883, so the two do not
+compete for bandwidth. The dashed loop runs offline on the Pi's work queue rather than during
+acquisition. Rates and latencies are measured values from the 60 s window of 2026-11-20 (11.4
+observations per second, 26 ms median inference).
+
 ## 3. Source tree
 
 ```
@@ -128,6 +137,55 @@ host: every process began after the last write of the package it executes, and t
 files matched the captured digests. Of the 28 vision modules, 23 are byte-identical between the
 archive and the device and 5 differ only in the substitutions applied during sanitisation. The
 procedure and raw output are in `docs/runtime-verification.md`.
+
+Both browser surfaces were captured from the live bench between 22:50 and 23:01 JST on 2026-11-20,
+during and after two short captures (Figures 2–10).
+
+![Figure 2](docs/figures/bench/bench-console-idle.png)
+
+**Figure 2.** `/lab` at rest: scheme C selected, sampling parameters, the environmental readout, and
+the capture-record row that binds a run to a location and a batch name.
+
+![Figure 3](docs/figures/bench/bench-console-running.png)
+
+**Figure 3.** `/lab` during a capture: the C channel running, the live frame, one tracked person with
+detected attributes, environmental values refreshed each second, and the resulting batch. The
+operator's face is blurred in this copy.
+
+![Figure 4](docs/figures/bench/bench-data-query.png)
+
+**Figure 4.** `/data`: the long-term environmental record, the filter bar, the batch list, and the
+download and trash controls, on one surface.
+
+![Figure 5](docs/figures/bench/bench-data-env.png)
+
+**Figure 5.** Long-term environmental record: save interval, the segments held (14,853 at capture),
+and the temperature, humidity and CO₂ trajectories, each interpolated over completed intervals.
+
+![Figure 6](docs/figures/bench/bench-data-batches.png)
+
+**Figure 6.** Batch list with keyword, date and channel filters, three views (all, starred, trash),
+selection controls, and the per-batch operations.
+
+![Figure 7](docs/figures/bench/bench-data-summary.png)
+
+**Figure 7.** Experiment summary for one batch: 261 archived observations, at most one person per
+frame, no line crossings, and per-sensor minima, means, maxima and valid counts.
+
+![Figure 8](docs/figures/bench/bench-data-records.png)
+
+**Figure 8.** Raw environmental records for the first 20 samples of a batch, with sensor identity,
+temperature, humidity and CO₂. Blank entries are quantities that sensor does not measure.
+
+![Figure 9](docs/figures/bench/bench-data-trash.png)
+
+**Figure 9.** Trash view: 95 batches retained and individually restorable. Deletion reclaims no disk
+space and leaves the source media and sensor records untouched.
+
+![Figure 10](docs/figures/bench/bench-data-api.png)
+
+**Figure 10.** Developer API block: the endpoint shapes the data plane exposes under the same
+credentials as the page. The host is masked as `192.0.2.11`.
 
 ### 5.3 Reproducing the checks
 
