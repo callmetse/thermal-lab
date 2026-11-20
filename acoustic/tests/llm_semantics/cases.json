@@ -1,0 +1,100 @@
+[
+  {
+    "id": "c01",
+    "text": "我有点冷，希望暖一点。",
+    "sensation": "cold",
+    "preference": "warmer",
+    "note": "最直白的一类，规则应当命中"
+  },
+  {
+    "id": "c02",
+    "text": "我有点热，希望凉一点。",
+    "sensation": "hot",
+    "preference": "cooler",
+    "note": "同上，反向"
+  },
+  {
+    "id": "c03",
+    "text": "我不冷不热，保持现在这样。",
+    "sensation": "neutral",
+    "preference": "no_change",
+    "note": "双重否定＋保持，规则曾把“保持现在”误当时间词"
+  },
+  {
+    "id": "c04",
+    "text": "刚才有点冷，现在不热了。",
+    "sensation": "none",
+    "preference": "none",
+    "note": "过去状态不得当作当前感受"
+  },
+  {
+    "id": "c05",
+    "text": "刚走回来有点热，但先别降温。",
+    "sensation": "hot",
+    "preference": "no_change",
+    "note": "感受与偏好在同一句里冲突，规则很可能只抓到“热”"
+  },
+  {
+    "id": "c06",
+    "text": "今天上课挺累的。",
+    "sensation": "none",
+    "preference": "none",
+    "note": "与冷热无关的闲聊，不得强行打标签"
+  },
+  {
+    "id": "c07",
+    "text": "我不冷。",
+    "sensation": "none",
+    "preference": "none",
+    "note": "纯否定"
+  },
+  {
+    "id": "c08",
+    "text": "温度正好。",
+    "sensation": "neutral",
+    "preference": "none",
+    "note": "只说状态，没说偏好"
+  },
+  {
+    "id": "c09",
+    "text": "能不能再凉快一点。",
+    "sensation": "none",
+    "preference": "cooler",
+    "note": "只说偏好，不说当前感受"
+  },
+  {
+    "id": "c10",
+    "text": "我不想开空调，有点冷。",
+    "sensation": "cold",
+    "preference": "none",
+    "note": "“不想开空调”不是“不冷”，规则容易整句丢掉感受"
+  },
+  {
+    "id": "c11",
+    "text": "现在不冷了，刚才很冷。",
+    "sensation": "none",
+    "preference": "none",
+    "note": "当前否定＋过去肯定，最容易搞反"
+  },
+  {
+    "id": "c12",
+    "text": "有点闷，想通通风。",
+    "sensation": "none",
+    "preference": "none",
+    "note": "空气质量诉求，不是冷热；不得硬套 cooler/warmer"
+  },
+  {
+    "id": "c13",
+    "text": "我还想暖和一点。",
+    "sensation": "none",
+    "preference": "warmer",
+    "note": "只说偏好"
+  },
+  {
+    "id": "c14",
+    "text": "有点热，但别动温度，等会儿再说。",
+    "sensation": "hot",
+    "preference": "no_change",
+    "note": "感受明确但明确要求不要调，规则可能给出 cooler"
+  }
+]

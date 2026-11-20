@@ -1,0 +1,23 @@
+groups:
+  - name: abc-experiment
+    interval: 30s
+    rules:
+      - alert: ExperimentPiScrapeMissing
+        expr: up{job="abc-pi"} == 0 or absent(up{job="abc-pi"})
+        for: 90s
+      - alert: ExperimentPiSampleStale
+        expr: |
+          (time() - abc_ops_last_sample_timestamp_seconds{job="abc-pi"} > 90)
+          or (up{job="abc-pi"} == 1 unless abc_ops_last_sample_timestamp_seconds{job="abc-pi"})
+        for: 30s
+      - alert: ExperimentSensorStale
+        expr: abc_ops_sensor_fresh{job="abc-pi"} == 0
+        for: 90s
+      - alert: ExperimentArchiveBacklogStalled
+        expr: |
+          (abc_ops_archive_backlog{job="abc-pi"} > 0)
+          and (min_over_time(abc_ops_archive_oldest_age_s{job="abc-pi"}[90s]) > 30)
+          and (changes(abc_ops_archive_delivered{job="abc-pi"}[90s]) == 0)
+        for: 60s
+      - alert: ExperimentPiUndervoltage
+        expr: abc_ops_pi_current_undervoltage{job="abc-pi"} == 1

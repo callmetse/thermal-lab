@@ -1,0 +1,25 @@
+name: abc20261102-control
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:28883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+  console:
+    image: nodered/node-red:5.0.9
+    restart: unless-stopped
+    environment:
+      ABC_UI_USER: ${ABC_UI_USER:?Set a new lab UI username}
+      ABC_UI_PASSWORD_HASH: ${ABC_UI_PASSWORD_HASH:?Generate a new bcrypt hash}
+    ports:
+      - "127.0.0.1:28880:1880"
+    volumes:
+      - ./nodered/settings.js:/data/settings.js:ro
+      - ./nodered/flows.json:/data/flows.json:ro
+      - abc20261102-data:/data
+    depends_on:
+      - broker
+volumes:
+  abc20261102-data:

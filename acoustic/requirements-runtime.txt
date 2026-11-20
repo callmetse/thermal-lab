@@ -1,0 +1,4 @@
+aiohttp>=3,<4
+paho-mqtt>=2,<3
+numpy
+# Cloud worker additionally requires sherpa-onnx and its ONNX models.

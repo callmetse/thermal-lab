@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 30s
+  scrape_timeout: 8s
+
+rule_files:
+  - alert_rules.yml
+
+scrape_configs:
+  - job_name: abc-pi
+    static_configs:
+      # Local endpoint forwarded over the existing authenticated Pi transport.
+      - targets: ["127.0.0.1:19100"]
+
+  - job_name: abc-console
+    metrics_path: /probe
+    params:
+      module: [experiment_console]
+    static_configs:
+      - targets:
+          - http://192.0.2.11:28880/api/state
+          - http://192.0.2.11:28880/api/collection-batches?limit=1
+          - http://192.0.2.11:28880/api/environment/latest?zone_id=lab
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "127.0.0.1:9115"

@@ -1,0 +1,16 @@
+[Unit]
+Description=Independent ABC lab worker (%i)
+After=network-online.target abc20261102-mqtt-tunnel.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/abc20261102
+EnvironmentFile=%h/abc20261102/.env
+ExecStart=%h/abc20261102/.venv/bin/python -m lab.worker %i
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+
+[Install]
+WantedBy=default.target

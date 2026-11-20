@@ -1,0 +1,39 @@
+{
+    admin off
+    auto_https off
+    persist_config off
+}
+
+http://:28880 {
+    bind 0.0.0.0
+    @lan remote_ip private_ranges
+    handle @lan {
+        basic_auth {
+            {$ABC_CONSOLE_USER} {$ABC_CONSOLE_HASH}
+        }
+        # 实时预览：只有这四个入口留在视觉进程（28990）
+        @preview path /live-video /api/preview /api/preview-frame /api/preview-meta
+        handle @preview {
+            reverse_proxy 127.0.0.1:28990 {
+                flush_interval -1
+            }
+        }
+        # 数据面（28992）：按职责白名单，不能用 /api/* 通配把控制接口一起吞掉（R1）。
+        # 注意 /api/dataset/* 是数据面内部接口，这里不列，前端不可达。
+        @dataset path /data /api/video-uploads /api/collection-batches /api/collection-batches/* /api/environment/*
+        handle @dataset {
+            reverse_proxy 127.0.0.1:28992
+        }
+        # 其余全部回落到控制台（28881）：/lab、/api/state、/api/raw-state、
+        # /api/start、/api/stop、/api/ack 等控制接口。
+        handle {
+            redir / /lab 302
+            reverse_proxy 127.0.0.1:28881 {
+                flush_interval -1
+            }
+        }
+    }
+    handle {
+        respond "Local network only" 403
+    }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "vision-evidence-v1",
+    "title": "视觉结果与 CLO/MET 的证据边界",
+    "source": "lab/vision.py; lab/llm.py",
+    "section": "Vision.infer / SYSTEM",
+    "reviewed": true,
+    "effective": true,
+    "text": "系统输出人数轨迹、姿态、动作候选和可见服饰。CLO 与 MET 当前保持 null：不能由坐姿或站姿直接推断代谢率，不能从可见衣物类别推断完整衣层、材料或真实热阻。衣物未检出只代表信息未知，不代表没有穿衣。现有 Qwen2.5 7B 接收结构化事实，是文本解释器，不直接看图。"
+  },
+  {
+    "id": "temporal-window-v1",
+    "title": "动作识别时间窗口与采样完整性",
+    "source": "vendor/algorithm/temporal_v1/temporal.py",
+    "section": "resample / PersonWindows.push",
+    "reviewed": true,
+    "effective": true,
+    "text": "动作窗口包含 16 个槽，目标时间网格为 8 Hz。真实窗口准备好需要至少 1.75 秒跨度、至少 0.6 的有效槽覆盖；骨架和髋部必须有足够可见证据。相邻观察超过 0.6 秒会重置跟踪时间窗口。不能复制同一帧补齐多个槽，不能把全局结果到达频率等同每个人真实动作窗口有效性。"
+  },
+  {
+    "id": "learning-release-v1",
+    "title": "视觉难例学习与模型发布门禁",
+    "source": "tools/e2e_train_candidate.py",
+    "section": "dataset_manifest / candidate_manifest",
+    "reviewed": true,
+    "effective": true,
+    "text": "难例触发理由不是标签。Teacher 输出是候选伪标签，需要审核；一轮训练冒烟验证只能证明训练和导出流程能够运行。若训练与验证来自同一段录像、没有人工审核或独立测试集，候选模型必须阻止正式发布。正式更新端侧模型前要验证冻结集质量、NCNN 一致性、Pi 运行性能，并验证回退。"
+  },
+  {
+    "id": "live-facts-v1",
+    "title": "实时环境量和知识检索的来源",
+    "source": "env_sensor_v1/env_gateway.py; env_sensor_v1/env_store.py",
+    "section": "GET /env/v1/latest",
+    "reviewed": true,
+    "effective": true,
+    "text": "当前温度、相对湿度和 CO2 应通过 Pi 环境网关的 /env/v1/latest?zone_id=lab 读取。读取字段需要同时检查 present、stale、quality 和 age_ms。文档中的历史温湿度不能替代当前测量。SCD41 与 SHT4x 温湿度一致性检查不能证明哪个传感器更准确。生成服务离线或事实过期时应明确说明未知。"
+  }
+]

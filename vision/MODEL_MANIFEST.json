@@ -1,0 +1,67 @@
+[
+  {
+    "path": "assets/action/best.pt",
+    "bytes": 245269,
+    "sha256": "fe4fa89608132f3f6aeb3948d614fb95d2f3cc6a351f2b2bf965c9313ceef051"
+  },
+  {
+    "path": "assets/clothing_best.pt",
+    "bytes": 5457576,
+    "sha256": "f2c25aad5a1c05bf4a8a0db6b58764545124972a1a733a932583808a78220892"
+  },
+  {
+    "path": "assets/clothing_best_ncnn_model/metadata.yaml",
+    "bytes": 817,
+    "sha256": "23c65791c2fce26690bcf9af511107cce99a1cd7c6b6bedea2dfd84c72d12856"
+  },
+  {
+    "path": "assets/clothing_best_ncnn_model/model.ncnn.bin",
+    "bytes": 10414532,
+    "sha256": "4f7beb798c4535c3a91f89581e1c32a5c0907235fd806a1a43d96fae2b4e2b68"
+  },
+  {
+    "path": "assets/clothing_best_ncnn_model/model.ncnn.param",
+    "bytes": 22650,
+    "sha256": "128cda38582ea2c66ce839378d6e331db082daaaa5e6059e2096532f88028f89"
+  },
+  {
+    "path": "assets/yolo11n-pose.pt",
+    "bytes": 6255593,
+    "sha256": "869e83fcdffdc7371fa4e34cd8e51c838cc729571d1635e5141e3075e9319dc0"
+  },
+  {
+    "path": "assets/yolo11n-pose_ncnn_model/metadata.yaml",
+    "bytes": 442,
+    "sha256": "d5693bb79117f91d395c3817da01e24949828ba677803e71fcacd08b98dbc41b"
+  },
+  {
+    "path": "assets/yolo11n-pose_ncnn_model/model.ncnn.bin",
+    "bytes": 11634260,
+    "sha256": "531602e61a5e77651873109d13bc06199c274b5ece42aa608a95cbca28e21fea"
+  },
+  {
+    "path": "assets/yolo11n-pose_ncnn_model/model.ncnn.param",
+    "bytes": 25357,
+    "sha256": "767e9272e6c36016703efd3d4bcfd8417a2c7b5450932958e83308f93e3f50f7"
+  },
+  {
+    "path": "assets/yolo11n.pt",
+    "bytes": 5613764,
+    "sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1"
+  },
+  {
+    "path": "assets/yolo11n_ncnn_model/metadata.yaml",
+    "bytes": 1503,
+    "sha256": "a9b0758ddd3c93ea0f16f39f52b69dc6cece47496d1f4767c0def0339ac95230"
+  },
+  {
+    "path": "assets/yolo11n_ncnn_model/model.ncnn.bin",
+    "bytes": 10507932,
+    "sha256": "f40229e58bedc6584797107a724cf5ad1c6609593a9e8104d91907ca51120da6"
+  },
+  {
+    "path": "assets/yolo11n_ncnn_model/model.ncnn.param",
+    "bytes": 22711,
+    "sha256": "277611758443d4f291994c13e2898b348f48d2979e3c6ac4f851171e31503b30"
+  }
+]

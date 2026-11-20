@@ -1,0 +1,13 @@
+const previewTransport="pi-local";
+
+function observationRate(){const t=global.get('perf').now(),a=(global.get('observation_times')||[]).filter(v=>v>=t-5000);global.set('observation_times',a);
+ if(!a.length||t-a[a.length-1]>2000)return 0;if(a.length<2||a[a.length-1]-a[0]<500)return null;return (a.length-1)*1000/(a[a.length-1]-a[0]);}
+function compactObs(o){if(!o)return null;const v={};for(const k of ['project','run_id','arm','source','source_frame_id','source_pts_s','encoded_size','jpeg_sha256','kind','producer','status','infer_ms','producer_instance_id','observation_seq','recognition_region','confidence_range','crossing_events','crossing_counts','collection_batch_id','collection_location','collection_name','source_zone_id'])if(k in o)v[k]=o[k];
+ v.tracks=(o.tracks||[]).map(t=>({track_id:t.track_id,bbox:t.bbox,confidence:t.confidence,posture:{state:t.posture?.state,reason:t.posture?.reason},action:{value:t.action?.value,reason:t.action?.reason},clothing:(t.clothing||[]).map(g=>({category:g.category,confidence:g.confidence,ambiguous_with:g.ambiguous_with})),clothing_age_s:t.clothing_age_s,clo:t.clo,met:t.met,estimate_status:t.estimate_status}));return v;}
+function stateSnapshot(){const o=global.get('observation')||null,l=global.get('llm')||null,p=global.get('preview_meta')||null;let llm=null,meta=null;
+ if(l){llm={};for(const k of ['project','run_id','arm','source_frame_id','model','status','draft','semantic_flags','generation_ms','error'])if(k in l)llm[k]=l[k];}
+ if(p){meta={};for(const k of ['preview_id','run_id','source_frame_id','source_pts_s','encoded_size','preview_size','jpeg_sha256','preview_jpeg_sha256'])if(k in p)meta[k]=p[k];}
+ return {preview_transport:previewTransport,active:global.get('active')||null,observation:compactObs(o),llm,observation_delivery_hz:observationRate(),
+ observation_age_s:o?(Date.now()-global.get('obs_wall'))/1000:null,llm_age_s:l?(Date.now()-global.get('llm_wall'))/1000:null,
+ preview_id:global.get('preview_id')||null,preview_meta:meta,llm_id:global.get('llm_id')||null,run_error:global.get('run_error')||null,session:{state:(global.get('active')||{}).state||null,generation:(global.get('active')||{}).generation??null,heartbeat_age_s:global.get('heartbeat_wall')?Math.round((Date.now()-global.get('heartbeat_wall'))/1000):null,lease_ttl_s:global.get('lease_ttl_s')||120},last_session:global.get('last_session')||null};}
+msg.headers={'Cache-Control':'no-store'};msg.payload=stateSnapshot();return msg;

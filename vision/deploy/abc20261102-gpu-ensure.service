@@ -1,0 +1,9 @@
+[Unit]
+Description=Restore only the independent ABC GPU runtime
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh -F /dev/null -p 22 -i /etc/abc20261102/gpu-ensure-key -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/abc20261102/gpu-known-hosts -o ConnectTimeout=10 -o ServerAliveInterval=10 -o ServerAliveCountMax=2 root@gpu.example.invalid ensure
+TimeoutStartSec=85

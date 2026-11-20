@@ -1,0 +1,11 @@
+modules:
+  experiment_console:
+    prober: http
+    timeout: 4s
+    http:
+      method: GET
+      follow_redirects: false
+      valid_status_codes: [200]
+      basic_auth:
+        username: lab
+        password_file: /etc/abc-monitor/console.password

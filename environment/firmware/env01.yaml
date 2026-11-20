@@ -1,0 +1,262 @@
+# env01：ESP32-S3 N16R8 + SHT4x（SHT40/SHT41）+ SCD41
+#
+# 约定见 ../README.md 与 ../../给DS_ESP32环境采集与多模态接入大纲_20261105.md：
+# - 温湿度 0.5 Hz、CO₂ 0.2 Hz；传感器没有新读数就不发事件，不重复上报旧值。
+# - 设备没完成 SNTP 对时时 measured_at_ms 为 null，只保留 uptime，由网关补接收时间。
+# - 上报只走 HTTP POST 到 Pi 的 env_gateway；本机不装 MQTT broker，也不用原生 API。
+# - ESPHome 的 http_request 动作是同步的：网关不可达时会占住主循环直到超时，
+#   所以失败后退避 30 秒，避免每条读数都卡一次。
+#
+# 首次使用：cp secrets.yaml.example secrets.yaml 并填写 Wi-Fi / OTA / 网关地址。
+
+substitutions:
+  device_name: env01
+  device_id: env01
+  zone_id: lab
+  friendly_name: "env01"
+  firmware_version: "esphome-2026.10.2-hotspot1"
+  # Pi 的 Avahi 名称；切换热点、DHCP 地址变化后不再依赖原局域网 IP。
+  gateway_base: !secret gateway_base
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  includes:
+    - env_publish.h
+  on_boot:
+    # 启动自检：把两条测量和一条状态样例打到自己串口，只记录、不发送。
+    # 传感器还没接时，靠这三行就能核对报文格式与网关契约是否一致。
+    priority: -100
+    then:
+      - delay: 3s
+      - lambda: |-
+          auto now = id(sntp_time).now();
+          bool synced = now.is_valid();
+          long long epoch_ms = synced ? (long long) now.timestamp * 1000LL : 0;
+          std::string sht = env::measurement(true, "${device_id}", "sht4x", "${zone_id}",
+                                            1, 1, 0, synced, epoch_ms,
+                                            "${firmware_version}", 23.4f, 41.2f, NAN);
+          ESP_LOGI("env-selftest", "measurement %s", sht.c_str());
+          std::string scd = env::measurement(false, "${device_id}", "scd41", "${zone_id}",
+                                            1, 2, 0, synced, epoch_ms,
+                                            "${firmware_version}", 25.0f, 38.0f, 812.0f);
+          ESP_LOGI("env-selftest", "measurement %s", scd.c_str());
+          std::string st = env::status("${device_id}", "${zone_id}", 1, 3, 0, synced,
+                                       -61.0f, "${firmware_version}");
+          ESP_LOGI("env-selftest", "status %s", st.c_str());
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+# 板载原生 USB（USB-Serial/JTAG），插上就是 COM 口，日志不需要另接 UART。
+logger:
+  # DEBUG 才打印启动配置表和 I²C 扫描结果（[C] 行）；排障期先开着，
+  # 稳定以后可以降到 INFO，扫描结果见 README 第 2 节。
+  level: DEBUG
+  hardware_uart: USB_SERIAL_JTAG
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+      priority: 10
+    - ssid: !secret backup_wifi_ssid
+      password: !secret backup_wifi_password
+      priority: 0
+  # 保持扫描，以便主网络不可用时发现备用热点。
+  fast_connect: false
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# 两个传感器共用一条 I²C 总线：SHT4x 默认 0x44，SCD41 固定 0x62。
+# scan: true 会在启动日志里打印实际扫到的地址，接线核对就靠这一行。
+i2c:
+  - id: bus_a
+    sda: GPIO8
+    scl: GPIO9
+    frequency: 100kHz
+    scan: true
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Asia/Tokyo
+    servers:
+      - ntp.aliyun.com
+      - time.cloudflare.com
+
+http_request:
+  id: env_http
+  useragent: esphome/${device_name}
+  # 局域网往返只有毫秒级，短超时可以减少同步动作占住主循环的时间。
+  timeout: 2s
+  # 一条测量事件约 400 字节，默认 512 字节 TX 缓冲留出余量。
+  buffer_size_tx: 1024
+
+globals:
+  # boot_id 每次启动重新随机，和 seq 一起保证 event_id 跨重启不重复。
+  - id: boot_id
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
+  - id: seq
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
+  # 网关不可达时的退避截止时间：避免每条读数都卡一次超时。
+  - id: post_backoff_until_ms
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_rssi
+    name: "${friendly_name} rssi wifi"
+    update_interval: 60s
+    internal: true
+
+  - platform: sht4x
+    id: sht4x_0
+    i2c_id: bus_a
+    update_interval: 2s
+    precision: High
+    # 加热器用于去冷凝，不是提高精度；常态关闭。
+    heater_max_duty: 0.0
+    temperature:
+      id: sht_temp
+      name: "${friendly_name} temp SHT4x"
+    humidity:
+      id: sht_rh
+      name: "${friendly_name} rh SHT4x"
+      # 湿度在温度之后发布，这里能同时拿到本轮的温湿度。
+      on_value:
+        - if:
+            condition:
+              and:
+                - wifi.connected:
+                - lambda: |-
+                    return std::isfinite(id(sht_temp).state) && std::isfinite(id(sht_rh).state) &&
+                           esphome::millis() >= id(post_backoff_until_ms);
+            then:
+              - http_request.post:
+                  url: ${gateway_base}/env/v1/measurements
+                  request_headers:
+                    Content-Type: "application/json"
+                  body: !lambda |-
+                    if (id(boot_id) == 0) {
+                      uint32_t b = esphome::random_uint32();
+                      id(boot_id) = b ? b : 1;
+                    }
+                    auto now = id(sntp_time).now();
+                    bool synced = now.is_valid();
+                    long long epoch_ms = synced ? (long long) now.timestamp * 1000LL : 0;
+                    std::string body = env::measurement(
+                        true, "${device_id}", "sht4x", "${zone_id}", id(boot_id),
+                        ++id(seq), esphome::millis(), synced, epoch_ms,
+                        "${firmware_version}", id(sht_temp).state, id(sht_rh).state, NAN);
+                    ESP_LOGI("env", "post measurements %s", body.c_str());
+                    return body;
+                  on_error:
+                    - lambda: |-
+                        id(post_backoff_until_ms) = esphome::millis() + 30000;
+                        ESP_LOGW("env", "gateway unreachable, back off 30s");
+                  on_response:
+                    - lambda: |-
+                        id(post_backoff_until_ms) = 0;
+
+  - platform: scd4x
+    id: scd41_0
+    i2c_id: bus_a
+    update_interval: 5s
+    measurement_mode: periodic
+    # ASC 依赖背景空气暴露条件，长期封闭房间不启用；显式记录而不是用默认值。
+    automatic_self_calibration: false
+    # 不用 ESPHome 默认的 4°C 补偿：显示原始值，自热差异留给 SHT4x 对照。
+    temperature_offset: "0°C"
+    co2:
+      id: scd_co2
+      name: "${friendly_name} co2 SCD41"
+      on_value:
+        - if:
+            condition:
+              and:
+                - wifi.connected:
+                - lambda: |-
+                    return std::isfinite(id(scd_co2).state) &&
+                           esphome::millis() >= id(post_backoff_until_ms);
+            then:
+              - http_request.post:
+                  url: ${gateway_base}/env/v1/measurements
+                  request_headers:
+                    Content-Type: "application/json"
+                  body: !lambda |-
+                    if (id(boot_id) == 0) {
+                      uint32_t b = esphome::random_uint32();
+                      id(boot_id) = b ? b : 1;
+                    }
+                    auto now = id(sntp_time).now();
+                    bool synced = now.is_valid();
+                    long long epoch_ms = synced ? (long long) now.timestamp * 1000LL : 0;
+                    std::string body = env::measurement(
+                        false, "${device_id}", "scd41", "${zone_id}", id(boot_id),
+                        ++id(seq), esphome::millis(), synced, epoch_ms,
+                        "${firmware_version}", id(scd_temp).state, id(scd_rh).state,
+                        id(scd_co2).state);
+                    ESP_LOGI("env", "post measurements %s", body.c_str());
+                    return body;
+                  on_error:
+                    - lambda: |-
+                        id(post_backoff_until_ms) = esphome::millis() + 30000;
+                        ESP_LOGW("env", "gateway unreachable, back off 30s");
+                  on_response:
+                    - lambda: |-
+                        id(post_backoff_until_ms) = 0;
+    # SCD41 自带的温湿度只作一致性对照，页面上不作为主环境值。
+    temperature:
+      id: scd_temp
+      internal: true
+    humidity:
+      id: scd_rh
+      internal: true
+
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            and:
+              - wifi.connected:
+              - lambda: |-
+                  return esphome::millis() >= id(post_backoff_until_ms);
+          then:
+            - http_request.post:
+                url: ${gateway_base}/env/v1/status
+                request_headers:
+                  Content-Type: "application/json"
+                body: !lambda |-
+                  if (id(boot_id) == 0) {
+                    uint32_t b = esphome::random_uint32();
+                    id(boot_id) = b ? b : 1;
+                  }
+                  auto now = id(sntp_time).now();
+                  bool synced = now.is_valid();
+                  std::string body = env::status(
+                      "${device_id}", "${zone_id}", id(boot_id), ++id(seq),
+                      esphome::millis(), synced, id(wifi_rssi).state,
+                      "${firmware_version}");
+                  ESP_LOGI("env", "post status %s", body.c_str());
+                  return body;
+                on_error:
+                  - lambda: |-
+                      id(post_backoff_until_ms) = esphome::millis() + 30000;
+                      ESP_LOGW("env", "gateway unreachable, back off 30s");
+                on_response:
+                  - lambda: |-
+                      id(post_backoff_until_ms) = 0;
