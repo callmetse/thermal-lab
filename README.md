@@ -181,7 +181,7 @@ manifests.
 | Supervisor template vs generator | the archived template matches the Pi; `deploy.py` writes a shorter configuration without `audio-profile` | the generator is the older variant; do not regenerate over a deployed host |
 | `vision/tools/deploy_ui_d.py` | withheld: contains a plaintext console password and a local secret-store path | excluded rather than shipping a working credential |
 | Deployed vision differs from this tree | the Pi runs extended modules plus a `dataset-api` program; 26 files differ in content | see `docs/system-verification.md` before treating `vision/` as the deployed source |
-| Front-end bench not current | `vision/deploy/nodered/` holds an older `page.html` (52 KB vs 35 KB) and `flows-native.json` (92 KB vs the control host's 102 KB) | take the deployed flows as truth; see `docs/frontend-20261120.md` |
+| Front-end bench not current | repository `page.html` is a 2026-11-16 local edit (52 KB) while both devices serve the 2026-11-03 page (35 KB); the control host's `flows-native.json` (2026-11-17, 102 KB) is newer than the repository copy | neither tree is authoritative for every file; see `docs/frontend-20261120.md` |
 
 ## 🔍 Evidence Status
 

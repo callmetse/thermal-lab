@@ -52,7 +52,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
 | `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
 | 现网视觉与仓库不一致 | Pi 上跑的是混合构建（扩展模块 + `dataset-api` 服务），26 个文件内容不同 | 详见 `docs/system-verification.md`，不能把 `vision/` 当成现网源码 |
-| 前端实验台不是最新 | `vision/deploy/nodered/` 的 `page.html` 是 52 KB、现网 35 KB；`flows-native.json` 92 KB、控制云 102 KB（11-17） | 以部署的为准，见 `docs/frontend-20261120.md` |
+| 前端实验台不是最新 | 仓库 `page.html` 是 11-16 本地改的（52 KB），两台设备跑的都是 11-03 版（35 KB）；控制云 `flows-native.json`（11-17，102 KB）比仓库新 | 三份拷贝各有"最新"的部分，逐文件核对，见 `docs/frontend-20261120.md` |
 
 ## 四、本地怎么跑（小白 3 分钟版）
 
