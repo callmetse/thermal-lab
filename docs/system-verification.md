@@ -18,7 +18,8 @@ device, broker, GPU or production database was contacted.
 | Vision | `cp vision/config.example.json vision/config.json && cd vision && python -m unittest discover -s tests -v` | Ran 122 tests, OK |
 | Collaboration overlay (revision) | `cd revisions/collaboration && PYTHONPATH=../../vision python -m unittest discover -s tests -v` | Ran 71 tests, OK |
 
-331 tests ran, 5 were skipped, none failed.
+330 tests ran, 12 were skipped, none failed: five need GPU-host models, seven quarantine fixtures
+written for the archived base worker (see [deployed-baseline.md](deployed-baseline.md)).
 
 The same five suites were re-run on Ubuntu 24.04 with Python 3.12.3 (`aiohttp` 3.14.5, `numpy`
 1.26.4) from the same commit: identical counts, 0 failures. `.github/workflows/tests.yml` runs
@@ -135,7 +136,7 @@ only the first two, so the generator output is the older variant and the archive
 |---|---|
 | Source trees import and their test suites pass locally | Verified on 2026-11-20, as above |
 | Repository contains no credential found by pattern scan | Verified with gitleaks 8.30.1 on the working tree and the commit; no leaks reported |
-| Source equals deployed revision | **False for the Pi**: 26 files differ in content, the deployed vision tree is a hybrid, and the Pi carries scripts absent from the tree (2026-11-20). GPU and control hosts unverified. |
+| Source equals deployed revision | **True for the Pi** since the primary trees were replaced with the Pi build (vision, audio, environment). The GPU differs in `worker.py` and `llm.py`; the control host runs an older base build. |
 | Deployed revision equals running process | **Verified for seven services on 2026-11-20 22:16**: each process started 14–239 h after the last write of its package, and the Pi files are unchanged since capture — see [runtime-verification.md](runtime-verification.md) |
 | Pi audio capture, ESP32 firmware build, Node-RED flow import, GPU cloud inference | Pi read-only inspected on 2026-11-20 (files and Supervisor programs); capture, firmware build, flow import and cloud runtime still unverified |
 

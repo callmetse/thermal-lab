@@ -23,42 +23,37 @@ modified. Sanitised archives live under `deployments/`.
 - **Control host** — `abc20261102-broker`, `abc20261102-console` and `abc20261102-gpu-ensure.timer`
   are active; `:28880` is listening; Node-RED user dir `/srv/abc20261102/state/node-red`.
 
-## Vision package: four deployments, five worker builds
+## Vision package: the repository now carries the Pi build
 
-The `lab/` package is present on the Pi and GPU (extended), on the control host (ten files), and in
-this repository (base). Files that are identical everywhere: `__init__.py`, `camera.py`,
-`gpu_health.py`, `hard_examples.py`, `posture.py`, `recognition_region.py`, `result_codec.py`,
-`sample_store.py`, `scene_gate.py`, `transfer_policy.py`.
+`vision/lab/` holds the Pi's deployed build (28 modules), copied from the sanitised device snapshot.
+The GPU runs the same build apart from two files; the control host runs an older base build. Hashes
+below are of the sanitised copies, first 12 hex digits:
 
-Files that differ, by SHA-256 prefix:
+| File | Repository (Pi) | GPU | Control |
+|---|---|---|---|
+| `worker.py` | `c394fad5ed7f` | `19030c2a0453` | `9d48941e3e21` |
+| `llm.py` | `48f5d2f2361d` | `19e20583a5f1` | `48f5d2f2361d` |
+| `common.py` | `30d0d36e6f5d` | `30d0d36e6f5d` | `f48d407aa1ee` |
+| `local_preview.py` | `6201c680a5a6` | `6201c680a5a6` | `f401854d6ff7` |
+| `presentation.py` | `c9af91c865a8` | `c9af91c865a8` | `ff44bad2376a` |
+| `vision.py` | `8c8cd7d12418` | `8c8cd7d12418` | `6bf00149cd8c` |
+| `collection_batches.py` | `81f0e1460a20` | `81f0e1460a20` | — |
+| `collection_routes.py` | `cee7deaa2bfd` | `cee7deaa2bfd` | — |
+| `experiment_archive.py` | `07b943c7bb3d` | `07b943c7bb3d` | — |
+| `video_uploads.py` | `f5898c91cf1e` | `f5898c91cf1e` | — |
 
-| File | Repository | Pi | GPU | Control |
-|---|---|---|---|---|
-| `worker.py` | `fe10e1e8` | `c394fad5` | `19030c2a` | `9d48941e` |
-| `common.py` | `f7e539fb` | `30d0d36e` | `30d0d36e` | `f48d407a` |
-| `llm.py` | `48f5d2f2` | `48f5d2f2` | `19e20583` | `48f5d2f2` |
-| `local_preview.py` | `ae7cab33` | `6201c680` | `6201c680` | `f401854d` |
-| `presentation.py` | `c9af91c8` | `c9af91c8` | `c9af91c8` | `ff44bad2` |
-| `vision.py` | `8c8cd7d1` | `8c8cd7d1` | `8c8cd7d1` | `6bf00149` |
-| `collection_batches.py` | `bba36c5b` | `81f0e146` | `81f0e146` | — |
-| `collection_routes.py` | `b99c4377` | `cee7deaa` | `cee7deaa` | — |
-| `experiment_archive.py` | `9cbcc73f` | `07b943c7` | `07b943c7` | — |
-| `video_uploads.py` | `e0afbee4` | `f5898c91` | `f5898c91` | — |
-
-Eight modules exist on the Pi and GPU but not in the base tree: `aggregation.py`,
-`archive_ingest.py`, `crop_infer.py`, `dataset_api.py`, `dataset_settings.py`, `model_manifest.py`,
-`object_line.py`, `record_schema.py`. All eight, and most of the differing files above, match
-`revisions/vision-extension/lab/` exactly; the exception is `worker.py`, which matches no copy.
+All other modules are identical across the three tiers.
 
 Reading:
 
-- **Pi and GPU run the same extended build** apart from `worker.py` and `llm.py`.
-- **The control host runs an older base build** with its own edits, not the extended one.
-- **This repository holds the base build**; its extended archive under `revisions/` is close to what
-  the Pi and GPU run but is not identical (`worker.py`).
-- **Five distinct `worker.py` builds** were observed: the repository copy, the Pi, the GPU, the
-  control host, and the 2026-11-16 GPU baseline (`c40d2040`). The file name alone identifies none
-  of them.
+- **The repository and the Pi are the same build.** The GPU differs in `worker.py` and `llm.py`.
+- **The control host runs an older base build**: it holds ten modules, five of which differ from the
+  current tree, and it lacks the extended modules entirely.
+- **`worker.py` has four distinct builds in these records**: repository/Pi `c394fad5`, GPU
+  `19030c2a`, control `9d48941e`, and the 2026-11-16 GPU baseline `c40d2040`. The old base build
+  (`fe10e1e8`) is archived at `revisions/vision-base-20261120/`.
+- **`revisions/vision-extension/`** matches the deployed build for 18 of 28 modules; the exception is
+  `worker.py`.
 
 ## Front end
 

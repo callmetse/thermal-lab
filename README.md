@@ -37,7 +37,7 @@ Environmental data uses HTTP; vision and audio use MQTT.
 
 ### Development
 
-- `unittest` suites (331 tests), `gitleaks` for credential scanning, GitHub Actions for CI
+- `unittest` suites (330 tests), `gitleaks` for credential scanning, GitHub Actions for CI
 
 ## 📁 Project Structure
 
@@ -73,6 +73,7 @@ thermal-lab/
 │   ├── gpu-20261120/            # GPU instance source capture (extended vision package)
 │   └── control-20261120/        # Control-host code, Node-RED flows, units and console files
 ├── docs/
+│   ├── deployed-baseline.md     # why the primary trees now hold the deployed build
 │   ├── architecture.md          # the four A/B/C/D layouts, topic contract, learning loop
 │   ├── figures/                 # rendered diagrams
 │   ├── system-verification.md   # test evidence, worker identities, gaps
@@ -143,8 +144,9 @@ cd vision && python -m unittest discover -s tests -v && cd ..
 cd revisions/collaboration && PYTHONPATH=../../vision python -m unittest discover -s tests -v
 ```
 
-Expected: **331 tests ran, 5 skipped, 0 failures**. The five skipped audio tests need Sherpa-ONNX
-models that live on the GPU host. CI runs the same five suites on Ubuntu.
+Expected: **330 tests ran, 12 skipped, 0 failures**. Five skips need the Sherpa-ONNX models that
+live on the GPU host; seven quarantine fixtures written for the archived base worker (see
+`docs/deployed-baseline.md`). CI runs the same five suites on Ubuntu.
 
 ## 🏗️ Architecture
 
@@ -192,7 +194,7 @@ manifests.
 | `utt_listener.py` launch path | source lives in `acoustic/tools/`; `deploy/start_listener.sh` starts it from the service root | deployment must copy or repoint it |
 | Supervisor template vs generator | the archived template matches the Pi; `deploy.py` writes a shorter configuration without `audio-profile` | the generator is the older variant; do not regenerate over a deployed host |
 | `vision/tools/deploy_ui_d.py` | withheld: contains a plaintext console password and a local secret-store path | excluded rather than shipping a working credential |
-| Deployed vision differs from this tree | the Pi runs extended modules plus a `dataset-api` program; 26 files differ in content | see `docs/system-verification.md` before treating `vision/` as the deployed source |
+| GPU and control run variants | the GPU differs in `worker.py` and `llm.py`; the control host runs an older base build with its own edits | snapshots and the hash table are in `docs/deployments-20261120.md` |
 | Front-end bench not current | repository `page.html` is a 2026-11-16 local edit (52 KB) while both devices serve the 2026-11-03 page (35 KB); the control host's `flows-native.json` (2026-11-17, 102 KB) is newer than the repository copy | neither tree is authoritative for every file; see `docs/frontend-20261120.md` |
 | Vision build drift | four deployments, five `worker.py` builds: the Pi and GPU share the extended package except `worker.py`/`llm.py`, the control host runs an older base build | reconcile before any overlay; see `docs/deployments-20261120.md` |
 
@@ -202,7 +204,7 @@ manifests.
 |---|---|
 | Source imports; five suites pass locally and in CI | ✅ 2026-11-20, Python 3.13 (Windows) and 3.12 (Ubuntu) |
 | No credentials in the tree or history | ✅ gitleaks 8.30.1, no leaks |
-| Source equals the deployed revision | ❌ false on all three tiers (2026-11-20): Pi differs in 26 files, GPU and control run other vision builds, five distinct `worker.py` variants exist |
+| Source equals the deployed revision | ✅ for the Pi: `vision/lab`, `acoustic/` and `environment/` now hold the Pi build. The GPU differs in `worker.py` and `llm.py`; the control host runs an older base build |
 | Deployed revision equals the running process | ✅ seven services verified on 2026-11-20 22:16: started after the last write of their package, files unchanged since capture — see `docs/runtime-verification.md` |
 | Pi capture, ESP32 firmware, Node-RED import, GPU runtime | ⬜ unverified; all three tiers were read-only inspected on 2026-11-20 |
 

@@ -52,6 +52,17 @@ def canonical_hash(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def human_bytes(value):
+    """容量显示统一口径（1024 进制），配额/空间/报告三处共用。"""
+    value = float(max(0, value))
+    units = ["B", "KiB", "MiB", "GiB", "TiB"]
+    for unit in units:
+        if value < 1024 or unit == units[-1]:
+            return "%d %s" % (value, unit) if unit == "B" else "%.1f %s" % (value, unit)
+        value /= 1024
+    return "%.1f TiB" % value
+
+
 def latest_put(q, value):
     try:
         q.put_nowait(value)
@@ -88,8 +99,18 @@ def unpack(payload, project):
 
 
 def accepted_command(body, c):
-    if body.get("project") != c["project"] or body.get("op") not in ("start", "stop"):
+    op = body.get("op")
+    if body.get("project") != c["project"] or op not in ("start", "stop", "lease", "session_query"):
         return False
+    if op == "session_query":
+        return True
+    if op == "lease":
+        if not IDENTIFIER.fullmatch(str(body.get("run_id", ""))):
+            return False
+        generation, ttl = body.get("generation"), body.get("ttl_s", 120)
+        if generation is not None and (type(generation) is not int or generation < 0):
+            return False
+        return type(ttl) in (int, float) and 1 <= ttl <= 3600
     if not IDENTIFIER.fullmatch(str(body.get("run_id", ""))):
         return False
     if body["op"] == "start":
@@ -120,6 +141,16 @@ def accepted_command(body, c):
             if field in body and not IDENTIFIER.fullmatch(str(body[field])):return False
         rate = body.get('sample_fps', c.get('sample_fps', 12))
         if type(rate) not in (int, float) or not 1 <= rate <= c.get('capture_fps', 30):
+            return False
+        if 'object_classes' in body:
+            values = body['object_classes']
+            if (not isinstance(values, list) or not values or len(values) > 80
+                    or any(type(v) is not int or not 0 <= v <= 79 for v in values)):
+                return False
+        if body.get('arm_a_mode') not in (None, 'detect', 'full'):
+            return False
+        generation = body.get('generation')
+        if generation is not None and (type(generation) is not int or generation < 0):
             return False
     return True
 

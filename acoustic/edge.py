@@ -8,6 +8,7 @@ import logging.handlers
 import math
 import os
 import subprocess
+import urllib.request
 import threading
 import time
 import uuid
@@ -81,11 +82,42 @@ class Edge:
                 elif x.get('kind') == 'transcript':
                     # A transcript is itself speech evidence for the same run window.
                     x['fusion'] = fuse(dict(x, events=[{'name': 'Speech', 'score': 1.0}]), v)
+                if x.get('kind') == 'transcript':
+                    x.update(self._snapshot_for(x))
                 x['pi_result_received_mono_ns'] = now
                 self.events.appendleft(x)
                 journal('events.jsonl', x)
         except Exception as ex:
             journal('errors.jsonl', event('receive_error', self.last_session, error=str(ex)))
+
+    def _snapshot_for(self, x):
+        """给转写配一张「那一刻」的画面：从本地预览缓存取最新帧另存。"""
+        try:
+            eid = x.get('event_id')
+            if not eid:
+                return {}
+            d = ROOT/'data'/'snapshots'
+            d.mkdir(parents=True, exist_ok=True)
+            f = d/('%s.jpg' % eid)
+            with urllib.request.urlopen('http://127.0.0.1:28990/api/preview-frame',
+                                        timeout=0.8) as r:
+                data = r.read()
+            if len(data) < 1000 or data[:2] != b'\xff\xd8':
+                return {}
+            f.write_bytes(data)
+            return {'snapshot': '/mm/api/snapshot/%s.jpg' % eid,
+                    'snapshot_wall_ms': x.get('recorded_wall_ms')}
+        except Exception:
+            return {}
+
+    async def snapshot_file(self, request):
+        name = request.match_info['name']
+        if '/' in name or '..' in name:
+            raise web.HTTPNotFound()
+        p = ROOT/'data'/'snapshots'/name
+        if not p.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(p)
 
     def capture(self, sid, seconds, parent_run_id, speaker_mode='single'):
         path = ROOT/'data'/'audio'/sid
@@ -96,6 +128,20 @@ class Edge:
             with (path/'capture.log').open('wb') as err, wave.open(str(path/'capture_16k.wav'), 'wb') as wav:
                 wav.setnchannels(1); wav.setsampwidth(2); wav.setframerate(16000)
                 dev = resolve_capture()
+                # 唤醒词监听常驻占用 USB 声卡；开采集前请它先让出设备并等回执，
+                # 否则 arecord 会因设备忙直接失败（页面显示 capture or resampling failed）。
+                _ctl = ROOT/'data'/'wake_pause'
+                _ack = ROOT/'data'/'wake_ack'
+                try:
+                    _ack.unlink(missing_ok=True)
+                    _ctl.write_text('pause')
+                    for _ in range(8):
+                        if _ack.exists():
+                            break
+                        time.sleep(0.1)
+                    _ctl.unlink(missing_ok=True)
+                except Exception:
+                    pass
                 err.write((dev.describe() + '\n').encode()); err.flush()
                 p = subprocess.Popen(dev.arecord_args(seconds), stdout=subprocess.PIPE, stderr=err)
                 ff = subprocess.Popen(['ffmpeg', '-hide_banner', '-loglevel', 'error',
@@ -341,6 +387,7 @@ def main():
                  web.get('/mm/api/environment',e.environment), web.get('/mm/api/feedback_state',e.feedback_state), web.post('/mm/api/start',e.start),
                     web.post('/mm/api/stop',e.stop_capture), web.post('/mm/api/confirm',e.confirm),
                  web.post('/mm/api/merge',e.merge_fragments),
+                    web.get('/mm/api/snapshot/{name}',e.snapshot_file),
                     web.get('/mm',lambda r:web.FileResponse(ROOT/'page.html'))])
     # Keep an access trail: without it, an unexpected recording cannot be attributed
     # to a caller, which is exactly the gap found on 2026-11-03.

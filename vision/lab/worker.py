@@ -45,8 +45,23 @@ class Worker:
         self.c, self.role = config(), role
         self.root = self.c["topic_root"]
         self.commands, self.frames = queue.Queue(8), queue.Queue(1)
+        self.crops = queue.Queue(8)
         self.stop = threading.Event()
         self.vision = self.gate = None
+        self.object_line = None
+        self.crop_infer = None
+        self.rx_crops = 0
+        self.crop_attrs = {}
+        self.crop_attrs_lock = threading.Lock()
+        self.rx_attrs = 0
+        self.session_state = 'idle'
+        self.session_reason = None
+        self.session_run = None
+        self.generation = 0
+        self.lease_expires = 0.0
+        self.lease_ttl = float(self.c.get('lease_ttl_s', 120))
+        self.session_started = None
+        self.session_config = None
         self.active_run = None
         self.producer_instance_id = str(uuid.uuid4())
         self._result_journal = None
@@ -54,6 +69,8 @@ class Worker:
         self._observation_seq = 0
         self.rx_frames = self.frame_overwrites = self.foreign_frames = 0
         self.local_preview = None
+        self.dataset_archive = None
+        self.archive = None
         self.preview_results = queue.Queue(1)
         self.preview_cache = OrderedDict()
         self.preview_lock = threading.Lock()
@@ -91,9 +108,18 @@ class Worker:
                 max_bytes=hard.get('max_bytes', 50 * 1024 * 1024),
                 max_samples=hard.get('max_samples', 500),
                 max_age_s=hard.get('max_age_s', 7 * 24 * 3600))
+        if role == 'edge' and self.c.get('dataset_api') in (True, 1, 'on', 'true', 'True'):
+            from .archive_ingest import ArchiveIngest
+            dataset_api_url = 'http://127.0.0.1:%d' % int(self.c.get('dataset_api_port', 28992))
+            self.dataset_archive = ArchiveIngest(dataset_api_url, journal=ROOT/'state/archive_sessions.sqlite3')
+            self.archive = self.dataset_archive
         if role == 'edge' and self.c.get('local_preview', False):
             from .local_preview import LocalPreview
-            self.local_preview = LocalPreview(port=self.c.get('local_preview_port', 28990)).start()
+            self.local_preview = LocalPreview(port=self.c.get('local_preview_port', 28990),
+                                              preview_only=self.dataset_archive is not None,
+                                              archive_client=self.dataset_archive).start()
+            if self.archive is None:
+                self.archive = self.local_preview.archive
         self.client = mqtt_client(self.c, role, self.receive)
         self.media_client = None
         self.media_c = {**self.c, 'mqtt_host': self.c.get('media_host', '127.0.0.1'),
@@ -103,8 +129,11 @@ class Worker:
             self.media_c.update(mqtt_host=self.c['mqtt_host'], mqtt_port=self.c['mqtt_port'])
         def connected(client, userdata, flags, reason, properties):
             client.subscribe(self.root + "/commands", qos=1)
-            if self.local_preview:
+            if self.local_preview or self.archive:
                 client.subscribe(self.root + '/runs/+/observations', qos=1)
+            if role == 'edge':
+                # A 线路：云端回填的框内属性（只回属性，不回整条观测）。
+                client.subscribe(self.root + '/runs/+/crop_attrs', qos=0)
         self.client.on_connect = connected
         # Covers the initial connection if CONNACK raced the callback assignment.
         connected(self.client, None, None, None, None)
@@ -118,16 +147,36 @@ class Worker:
             if self.role == 'cloud':
                 def connected(client, userdata, flags, reason, properties):
                     client.subscribe(self.root + '/runs/+/frames', qos=1)
+                    client.subscribe(self.root + '/runs/+/crops', qos=0)
                 self.media_client.on_connect = connected
                 connected(self.media_client, None, None, None, None)
         return self.media_client
 
     def event(self, run, kind, **kw):
-        if self.local_preview and getattr(self.local_preview,'archive',None):
-            self.local_preview.archive.submit("event", {"run_id":run["run_id"],"kind":kind,"producer":self.role,**kw})
+        if self.archive:
+            self.archive.submit("event", {"run_id":run["run_id"],"collection_batch_id":run.get("collection_batch_id"),
+                                          "kind":kind,"producer":self.role,**kw})
         publish(self.client, self.root + f'/runs/{run["run_id"]}/events', {
             "project": self.c["project"], "run_id": run["run_id"], "arm": run["arm"],
             "producer": self.role, "kind": kind, **kw}, qos=1)
+
+    def publish_session(self, run_id, kind, **kw):
+        """会话状态/心跳：复用 events 通道，避免新增 MQTT 订阅。"""
+        if not run_id or self.role != 'edge':
+            return 0
+        return publish(self.client, self.root + f'/runs/{run_id}/events', {
+            "project": self.c["project"], "run_id": run_id, "producer": self.role,
+            "kind": kind, "state": self.session_state, "generation": self.generation,
+            "ts_ms": int(time.time() * 1000), **kw}, qos=1)
+
+    def set_session(self, state, reason=None):
+        self.session_state = state
+        self.session_reason = reason
+        extra = {}
+        if state == 'running' and self.session_config:
+            extra['session'] = self.session_config
+        self.publish_session(self.session_run, 'session_state', reason=reason, **extra)
+        return state
 
     def publish_preview(self, run, packet):
         if not self.local_preview:
@@ -228,7 +277,8 @@ class Worker:
             # Flush each record to the OS; this is not an fsync/power-loss guarantee.
             self._result_journal.flush()
             self._result_stats["raw_journal_bytes"] += len(encoded)
-        if self.local_preview and getattr(self.local_preview,'archive',None):self.local_preview.archive.submit("observation",out)
+        if self.archive:
+            self.archive.submit("observation",out)
         sent = publish(self.client, self.root + f'/runs/{run["run_id"]}/observations', out,
                        qos=self._result_stats["qos"])
         key = "accepted_for_publish" if sent else "publish_rejected"
@@ -245,18 +295,29 @@ class Worker:
             if msg.topic == self.root + "/commands":
                 body = json.loads(msg.payload)
                 if not msg.retain and accepted_command(body, self.c):
+                    if body.get("op") == "lease":
+                        if body.get("run_id") == self.session_run and (
+                                body.get("generation") in (None, self.generation)):
+                            self.lease_expires = time.monotonic() + float(
+                                body.get("ttl_s") or self.lease_ttl)
+                        return
+                    if body.get("op") == "session_query":
+                        self.publish_session(self.session_run, 'session_state', reason='query')
+                        return
                     try:
                         self.commands.put_nowait(body)
                     except queue.Full:
                         pass
-            elif self.local_preview and msg.topic.endswith('/observations'):
+            elif (self.local_preview or self.archive) and msg.topic.endswith('/observations'):
                 from .result_codec import decode_json
                 obs = decode_json(msg.payload)
                 if (obs.get('project') == self.c['project'] and obs.get('run_id') == self.active_run
                         and msg.topic == self.root + '/runs/' + str(self.active_run) + '/observations'
                         and obs.get('producer') == 'cloud'):
-                    if getattr(self.local_preview,'archive',None):self.local_preview.archive.submit("observation",obs)
-                    latest_put(self.preview_results, obs)
+                    if self.archive:
+                        self.archive.submit("observation",obs)
+                    if self.local_preview:
+                        latest_put(self.preview_results, obs)
                     # 云端说过"有人"就记一笔：帧差门控不能只凭画面安静就判定空场景，
                     # 静坐的人几乎不动，差分会把它们当空场景（实测 70% 帧误判）。
                     if obs.get('tracks'):
@@ -278,6 +339,22 @@ class Worker:
                         health.note_observation(queue_ms=timing.get('cloud_queue_ms'),
                                                 infer_ms=obs.get('infer_ms'),
                                                 status=obs.get('status'))
+            elif msg.topic.endswith('/crop_attrs'):
+                body = json.loads(msg.payload)
+                self.rx_attrs += 1
+                if body.get('run_id') == self.active_run:
+                    with self.crop_attrs_lock:
+                        for item in body.get('attrs') or []:
+                            if item.get('track_id') is not None:
+                                # at 必须用本机 monotonic：云端的时间戳跨机器不可比。
+                                self.crop_attrs[item['track_id']] = {**item, 'at': time.monotonic()}
+            elif self.role == "cloud" and msg.topic.endswith('/crops'):
+                h, jpeg = unpack(msg.payload, self.c["project"])
+                if (h.get('kind') != 'crop_batch' or h["run_id"] != self.active_run
+                        or msg.topic.split("/")[-2] != h["run_id"]):
+                    return
+                self.rx_crops += 1
+                latest_put(self.crops, (h, jpeg))
             elif self.role == "cloud" and msg.topic.endswith('/frames'):
                 h, jpeg = unpack(msg.payload, self.c["project"])
                 if h["run_id"] != self.active_run or msg.topic.split("/")[-2] != h["run_id"]:
@@ -299,12 +376,14 @@ class Worker:
             except queue.Empty:
                 continue
             if cmd["op"] == "stop":
-                if active == cmd["run_id"]:
+                if active == cmd["run_id"] and (cmd.get("generation") in (None, self.generation)):
+                    self.set_session('stopping')
                     cancel.set()
                 continue
             if cmd["run_id"] in completed or (current and current.is_alive()):
                 continue
             active = cmd["run_id"]
+            self.generation = cmd.get("generation", self.generation)
             self.active_run = active
             completed.add(active)
             if len(completed) > 1000:
@@ -324,10 +403,51 @@ class Worker:
             self.media_client.loop_stop()
         if self.local_preview:
             self.local_preview.close()
+        if self.dataset_archive:
+            self.dataset_archive.close()
+
+    def lease_guard(self, run, cancel):
+        """租约到期就停机：断链超过 lease_ttl_s 不允许继续跑。"""
+        while not cancel.is_set() and not self.stop.is_set():
+            if time.monotonic() > self.lease_expires:
+                self.set_session('interrupted', reason='lease_expired')
+                cancel.set()
+                return
+            time.sleep(.5)
+
+    def heartbeat_loop(self, run, cancel):
+        while not cancel.is_set() and not self.stop.is_set():
+            self.publish_session(run['run_id'], 'heartbeat',
+                                 uptime_s=round(time.monotonic() - (self.session_started or time.monotonic()), 1))
+            time.sleep(2.0)
 
     def session(self, run, cancel):
         try:
+            self.session_run = run['run_id']
+            self.session_config = {k: run.get(k) for k in (
+                'run_id', 'arm', 'source', 'seconds', 'unlimited', 'generation',
+                'collection_location', 'collection_name', 'source_zone_id', 'upload_id',
+                'ui_channel', 'sample_fps', 'confidence_min', 'confidence_max',
+                'recognition_region') if k in run}
+            self.generation = run.get('generation', self.generation)
+            self.session_started = time.monotonic()
+            if not self.lease_expires:
+                self.lease_expires = self.session_started + self.lease_ttl
+            self.lease_expires = max(self.lease_expires, self.session_started + self.lease_ttl)
+            self.set_session('starting')
+            threading.Thread(target=self.lease_guard, args=(run, cancel), daemon=True).start()
+            threading.Thread(target=self.heartbeat_loop, args=(run, cancel), daemon=True).start()
             self._begin_results()
+            if self.archive:
+                run = dict(run)
+                run.setdefault('model_manifest', self.model_manifest())
+                keys = ('sample_fps','capture_fps','width','height','encode_max_side','jpeg_quality','replay_file',
+                        'llm_model','min_person_confidence','max_people','pose_max_det','pose_imgsz','gate_imgsz',
+                        'rect','camera_backend','collaboration','hard_examples')
+                run['effective_settings'] = {key: run.get(key, self.c.get(key)) for key in keys}
+            if self.dataset_archive:
+                self.dataset_archive.start_session(run)
+            self.set_session('running')
             if self.local_preview:
                 self.preview_stats = {'display_packets': 0, 'cache_misses': 0, 'mismatches': 0,
                                       'fallback_packets': 0}
@@ -341,15 +461,23 @@ class Worker:
                 self.edge(run, cancel)
             elif run["arm"] != "A":
                 self.cloud(run, cancel)
+            elif run.get('arm_a_mode', self.c.get('a_mode', 'detect')) == 'detect':
+                # A 线路：云端不接整帧，只处理裁剪拼图。
+                self.crop_only(run, cancel)
         except Exception as e:
-            self.event(run, "failed", error=f"{type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            self.set_session('failed', reason=f"{type(e).__name__}: {e}")
+            self.event(run, "failed", error=f"{type(e).__name__}: {e}",
+                       traceback=traceback.format_exc()[-900:])
         finally:
+            if self.session_state in ('running', 'stopping', 'starting'):
+                self.set_session('completed')
             if self.local_preview:
                 self.preview_stop.set()
                 if self.preview_thread:
                     self.preview_thread.join(timeout=6)
                     self.preview_thread = None
-                self.local_preview.set_run(None)
                 with self.preview_lock:
                     self.preview_cache.clear()
                 while not self.preview_results.empty():
@@ -358,6 +486,7 @@ class Worker:
             try:
                 self._close_results()
             except Exception as e:
+                self.set_session('failed', reason='result_journal_close_failed')
                 self.event(run, "failed", error=f"Result journal close failed: {type(e).__name__}: {e}")
             if self._result_stats is not None:
                 self.event(run, "result_stats", producer_instance_id=self.producer_instance_id,
@@ -365,6 +494,10 @@ class Worker:
             self.event(run, "role_finished")
             if self.active_run == run["run_id"]:
                 self.active_run = None
+            if self.dataset_archive:
+                self.dataset_archive.finish_session(run['run_id'], self.session_state, self.session_reason)
+            if self.local_preview:
+                self.local_preview.set_run(None)
 
     def load_vision(self, run):
         from .vision import Vision
@@ -381,10 +514,24 @@ class Worker:
                    person_selection={k: self.c[k] for k in
                                      ("max_people", "min_person_confidence", "min_person_height_ratio", "pose_max_det")})
 
+    def model_manifest(self):
+        """P2-10：模型清单只在首次会话前收集一次（权重哈希较慢，之后走缓存）。"""
+        cached=getattr(self,'_model_manifest',None)
+        if cached is None:
+            from .model_manifest import collect
+            try:
+                cached=collect(self.c,ROOT,self.role,device='pi-cpu' if self.role=='edge' else 'cuda:0')
+            except Exception as error:  # noqa: BLE001 - 清单失败不能挡住采集
+                cached={'schema_version':'1.0','role':self.role,'device':None,'models':[],
+                        'error':type(error).__name__+': '+str(error)}
+            self._model_manifest=cached
+        return cached
+
     def edge(self, run, cancel):
         import cv2
         from .vision import observation
         c, arm = {**self.c, 'sample_fps': run.get('sample_fps', self.c['sample_fps'])}, run["arm"]
+        a_mode = run.get('arm_a_mode', c.get('a_mode', 'detect'))
         # getattr 兜底：单测会用 object.__new__ 构造 Worker，不经过 __init__。
         policy = getattr(self, 'policy', None)
         if policy is not None:
@@ -400,7 +547,7 @@ class Worker:
             health_state = health.state
         if run["source"] == "camera" and not c["allow_camera"]:
             raise RuntimeError("Camera disabled: use replay or a separately assigned camera")
-        if arm == "A":
+        if arm == "A" and a_mode == 'full':
             self.load_vision(run)
         if arm == "B" and self.gate is None:
             from ultralytics import YOLO
@@ -586,12 +733,26 @@ class Worker:
                             last_preview = preview_slot
                         continue
                     stats["gate_positive"] += 1
-                if arm == "A":
+                if arm == "A" and a_mode == 'full':
                     tracks, ms = self.vision.infer(decoded, pts)
                     if cancel.is_set():
                         break
                     out = observation(header, tracks, ms, "edge")
                     out.update(getattr(self.vision,"last_region_evidence",{}))
+                    stats["observation_bytes"] += self.publish_observation(run, out)
+                elif arm == "A":
+                    if self.object_line is not None:
+                        self.object_line.reset()
+                    if self.object_line is None:
+                        from .object_line import ObjectLine
+                        self.object_line = ObjectLine(
+                            c, lambda run_, meta, jpeg: self.publish_crops(run_, meta, jpeg), self.event,
+                            lambda track_id: self.crop_attr(track_id))
+                    tracks, ms = self.object_line.infer(decoded, pts, run, header)
+                    if cancel.is_set():
+                        break
+                    out = observation(header, tracks, ms, "edge-object")
+                    out['object_line'] = True
                     stats["observation_bytes"] += self.publish_observation(run, out)
                 else:
                     packet = pack(header, jpeg)
@@ -648,8 +809,15 @@ class Worker:
             cancel.set()
             thread.join(timeout=3)
             duration = time.monotonic() - start
+            import resource
+            rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
             payload = {'duration_s': duration,
                        'media_route': 'direct_gpu' if c.get('media_enabled') else 'control_cloud',
+                       'threads': threading.active_count(), 'max_rss_mb': round(rss_mb, 1),
+                       'rx_attrs': self.rx_attrs, 'crop_attrs_cached': len(self.crop_attrs),
+                       'object_line': (None if getattr(self, 'object_line', None) is None else
+                                       {'last_infer_ms': round(getattr(self.object_line, 'last_infer_ms', 0.0), 1),
+                                        'skipped_slow': getattr(self.object_line, 'skipped_slow', 0)}),
                        **stats}
             if policy is not None:
                 payload['policy'] = policy.summary(duration_s=duration)
@@ -745,11 +913,88 @@ class Worker:
             stats['hard_examples_rejected'] += 1
             return None
 
+    def publish_crops(self, run, meta, jpeg):
+        client = self.media()
+        if client is None:
+            return 0
+        try:
+            packet = pack(meta, jpeg)
+            publish(client, self.root + f'/runs/{run["run_id"]}/crops', packet, qos=0)
+            return len(packet)
+        except Exception:  # noqa: BLE001 - 裁剪上传失败不能中断采集
+            return 0
+
+    def crop_attr(self, track_id, ttl_s=2.5):
+        with self.crop_attrs_lock:
+            item = self.crop_attrs.get(track_id)
+            if not item:
+                return None
+            if time.monotonic() - item.get('at', 0) > ttl_s:
+                self.crop_attrs.pop(track_id, None)
+                return None
+            return item
+
+    def _publish_crops_result(self, run, meta, tracks, infer_ms):
+        now = time.monotonic()
+        attrs = []
+        with self.crop_attrs_lock:
+            for item in tracks:
+                attrs.append({"track_id": item.get("track_id"),
+                              "class_name": (item.get("attributes") or {}).get("class_name"),
+                              "posture": (item.get("attributes") or {}).get("posture"),
+                              "clothing": (item.get("attributes") or {}).get("clothing") or [],
+                              "crop_confidence": (item.get("attributes") or {}).get("crop_confidence")})
+                if item.get("track_id") is not None:
+                    self.crop_attrs[item["track_id"]] = {**attrs[-1], 'at': now}
+        publish(self.client, self.root + f'/runs/{run["run_id"]}/crop_attrs',
+                {"project": self.c["project"], "run_id": run["run_id"], "arm": "A",
+                 "kind": "crop_attrs", "source_frame_id": meta.get("source_frame_id"),
+                 "infer_ms": infer_ms, "attrs": attrs}, qos=0)
+
+    def crop_only(self, run, cancel):
+        deadline = float('inf') if run.get('unlimited', False) else time.monotonic() + run['seconds'] + 15
+        thread = threading.Thread(target=self.crop_loop, args=(run, cancel, deadline), daemon=True)
+        thread.start()
+        while not cancel.is_set() and not self.stop.is_set() and time.monotonic() < deadline:
+            time.sleep(.2)
+        cancel.set()
+        thread.join(timeout=6)
+
+    def crop_loop(self, run, cancel, deadline=None):
+        from .crop_infer import CropInfer
+        if self.crop_infer is None:
+            self.crop_infer = CropInfer(self.c)
+        handled = 0
+        debug = {'dequeued': 0, 'slot_total': 0, 'bytes': 0, 'tiles_decoded': 0, 'errors': 0}
+        while (not cancel.is_set() and not self.stop.is_set()
+               and (deadline is None or time.monotonic() < deadline)):
+            try:
+                header, jpeg = self.crops.get(timeout=.2)
+            except queue.Empty:
+                continue
+            debug['dequeued'] += 1
+            debug['bytes'] += len(jpeg)
+            debug['slot_total'] += len(header.get('slots') or [])
+            if header.get('run_id') != run['run_id']:
+                continue
+            try:
+                count = self.crop_infer.handle(
+                    header, jpeg,
+                    lambda meta, tracks, infer_ms: self._publish_crops_result(run, meta, tracks, infer_ms))
+                handled += count
+                debug['tiles_decoded'] += 1 if count else 0
+            except Exception as error:  # noqa: BLE001 - 单批失败只记事件
+                debug['errors'] += 1
+                self.event(run, 'crop_infer_failed', error=type(error).__name__ + ': ' + str(error))
+        self.event(run, 'crop_stats', handled=handled, received=self.rx_crops, **debug)
+
     def cloud(self, run, cancel):
         import cv2
         import numpy as np
         from .vision import observation
         self.load_vision(run)
+        crop_thread = threading.Thread(target=self.crop_loop, args=(run, cancel), daemon=True)
+        crop_thread.start()
         received_start, overwritten_start = self.rx_frames, self.frame_overwrites
         processed = 0
         deadline = float("inf") if run.get("unlimited",False) else time.monotonic() + run["seconds"] + 10

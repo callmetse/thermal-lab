@@ -1,4 +1,4 @@
-﻿"""env_sensor_v1 网关：接收 ESP32 的 HTTP 上报，校验、去重、落盘，并提供只读查询。
+"""env_sensor_v1 网关：接收 ESP32 的 HTTP 上报，校验、去重、落盘，并提供只读查询。
 
 独立进程、独立端口；不导入、不修改 ABC 应用（lab.worker / 视觉与声学链路）。
 ESP32 每 2 秒一条温湿度、每 5 秒一条 CO₂，都是小 JSON POST，不需要 broker。
@@ -134,6 +134,8 @@ def build_app(db_path, token=None):
         web.get('/env/v1/health', gateway.health),
         web.options('/{tail:.*}', gateway.preflight),
     ])
+    import env_longterm
+    env_longterm.install(app, db_path)
     return app
 
 

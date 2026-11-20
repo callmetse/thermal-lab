@@ -26,8 +26,15 @@ def install(server,app):
             batch_id=request.match_info.get('batch_id')
             loop=asyncio.get_running_loop()
             if not batch_id:
-                data=await loop.run_in_executor(None,lambda:store.list(int(request.query.get('limit',100)),request.query.get('view','all')))
-                return web.json_response({'batches':data,'active_batch_id':server.active_batch_id,
+                q=request.query
+                def num(name):
+                    value=q.get(name)
+                    return None if value in (None,'') else int(value)
+                data=await loop.run_in_executor(None,lambda:store.list_filtered(
+                    query=q.get('q') or None,view=q.get('view','all'),channel=q.get('channel') or None,
+                    since_ms=num('since_ms'),until_ms=num('until_ms'),
+                    limit=num('limit') if num('limit') is not None else 1000,offset=num('offset') or 0))
+                return web.json_response({**data,'active_batch_id':server.active_batch_id,
                                           'capture_error':server.batch_capture_error},headers={'Cache-Control':'no-store'})
             if request.path.endswith('/environment'):
                 data=await loop.run_in_executor(None,lambda:store.environment(batch_id,int(request.query.get('after_id',0)),int(request.query.get('limit',1000))))
@@ -138,13 +145,21 @@ def install(server,app):
 
 
 async def sync_loop(server):
+    async def sync_active():
+        if server.batch_store is not None and server.active_batch_id:
+            batch_id=server.active_batch_id
+            await asyncio.to_thread(server.batch_store.sync,batch_id)
+            state=await asyncio.to_thread(server.batch_store.get,batch_id)
+            server.batch_capture_error=state.get('capture_error')
+
     while True:
         try:
-            if server.batch_store is not None and server.active_batch_id:
-                batch_id=server.active_batch_id
-                await asyncio.get_running_loop().run_in_executor(None,server.batch_store.sync,batch_id)
-                state=await asyncio.get_running_loop().run_in_executor(None,server.batch_store.get,batch_id)
-                server.batch_capture_error=state.get('capture_error')
+            lock = getattr(server, 'session_lock', None)
+            if lock is None:
+                await sync_active()
+            else:
+                async with lock:
+                    await sync_active()
             await asyncio.sleep(2)
         except asyncio.CancelledError:raise
         except Exception as e:

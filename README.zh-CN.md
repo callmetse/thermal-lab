@@ -17,6 +17,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `environment/` | 环境感知：HTTP 网关、事件校验、SQLite 存储、ESP32 固件、树莓派启动模板 |
 | `vision/` | 视觉：边缘 worker、摄像头、预览与媒体传输、云端推断、Node-RED 流程、systemd 部署定义 |
 | `acoustic/` | 音频：采集、唤醒词、会话控制、云端语音识别 worker、仪表盘、Supervisor 模板 |
+| `revisions/vision-base-20261120/` | **旧基础版归档**（21 个视觉模块 + 知识检索包 + 一个基础版专用测试） |
 | `revisions/vision-extension/` | 历史扩展版视觉快照（数据集 API、采集监控、知识检索） |
 | `revisions/environment-longterm/` | 环境网关的长期记录变体 |
 | `revisions/collaboration/` | 协作补丁包（**不是独立包**，测试需叠加基础视觉包） |
@@ -53,7 +54,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
 | `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
 | 运行态已核实但仓库仍非部署版 | 2026-11-20 22:16 核过 7 个服务：启动时间都晚于包内最后一次写文件，Pi 文件与抓取时一致；但仓库基础版 ≠ 各端快照 | 见 `docs/runtime-verification.md`；合并仍需导师定基线 |
-| 现网视觉与仓库不一致 | Pi 上跑的是混合构建（扩展模块 + `dataset-api` 服务），26 个文件内容不同 | 详见 `docs/system-verification.md`，不能把 `vision/` 当成现网源码 |
+| 仓库已是 Pi 现网版 | `vision/`、`acoustic/`、`environment/` 已换成 Pi 跑的那份（28 个视觉模块）；GPU 差的只是 `worker.py`、`llm.py`，控制云还是旧基础版 | 见 `docs/deployed-baseline.md` 与 `docs/deployments-20261120.md` |
 | 视觉代码四端不一致 | Pi 与 GPU 是扩展版（仅 `worker.py`/`llm.py` 不同），控制云是旧基础版，仓库是基础版；`worker.py` 出现了 5 个不同构建 | 任何覆盖前先按 `docs/deployments-20261120.md` 逐文件核对 |
 | 前端实验台不是最新 | 仓库 `page.html` 是 11-16 本地改的（52 KB），两台设备跑的都是 11-03 版（35 KB）；控制云 `flows-native.json`（11-17，102 KB）比仓库新 | 三份拷贝各有"最新"的部分，逐文件核对，见 `docs/frontend-20261120.md` |
 
@@ -72,7 +73,7 @@ cd vision && python -m unittest discover -s tests -v && cd ..               # 12
 cd revisions/collaboration && PYTHONPATH=../../vision python -m unittest discover -s tests -v  # 71
 ```
 
-合计 **331 个用例、5 个跳过、0 失败**。跳过的是需要 GPU 主机上 Sherpa-ONNX 模型的 5 个音频用例。
+合计 **330 个用例、12 个跳过、0 失败**：5 个是需要 GPU 主机 Sherpa-ONNX 模型的音频用例，7 个是为旧基础版 worker 写的夹具（已隔离，理由写在代码里，见 `docs/deployed-baseline.md`）。
 
 常见问题：
 
