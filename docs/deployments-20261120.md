@@ -5,9 +5,9 @@ modified. Sanitised archives live under `deployments/`.
 
 | Tier | Entry | Captured | Archive |
 |---|---|---|---|
-| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `deployments/pi-20261120/` (149 files) |
-| GPU cloud | `root@connect.nmb2.seetacloud.com:31380` | source, Supervisor config, vendor code | `deployments/gpu-20261120/` (41 files) |
-| Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `deployments/control-20261120/` (69 files) |
+| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `deployments/pi-20261120/` (149 files + `SHA256SUMS`) |
+| GPU cloud | `root@connect.nmb2.seetacloud.com:31380` | source, Supervisor config, vendor code | `deployments/gpu-20261120/` (41 files + `SHA256SUMS`) |
+| Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `deployments/control-20261120/` (69 files + `SHA256SUMS`) |
 
 ## Service state observed (2026-11-20 ~21:55)
 
