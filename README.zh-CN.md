@@ -20,7 +20,8 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `revisions/vision-extension/` | 历史扩展版视觉快照（数据集 API、采集监控、知识检索） |
 | `revisions/environment-longterm/` | 环境网关的长期记录变体 |
 | `revisions/collaboration/` | 协作补丁包（**不是独立包**，测试需叠加基础视觉包） |
-| `docs/` | 验证证据、网关说明、评审入口 |
+| `deployments/pi-20261120/` | **Pi 现网快照**（2026-11-20 只读取回、已脱敏，含 SHA256SUMS）；只读参考，不要改 |
+| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异 |
 
 先读这两份：
 

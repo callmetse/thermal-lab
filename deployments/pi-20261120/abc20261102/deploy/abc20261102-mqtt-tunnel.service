@@ -1,0 +1,14 @@
+[Unit]
+Description=Independent ABC lab SSH MQTT tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/abc20261102/.env
+ExecStart=/usr/bin/ssh -N -T -o BatchMode=yes -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -L 127.0.0.1:28883:127.0.0.1:28883 ${ABC_CONTROL_SSH_DEST}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

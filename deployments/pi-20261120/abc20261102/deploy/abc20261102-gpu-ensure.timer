@@ -1,0 +1,11 @@
+[Unit]
+Description=Check independent ABC GPU runtime every 30 seconds
+
+[Timer]
+OnBootSec=15s
+OnUnitActiveSec=30s
+AccuracySec=1s
+Unit=abc20261102-gpu-ensure.service
+
+[Install]
+WantedBy=timers.target

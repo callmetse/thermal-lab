@@ -1,0 +1,27 @@
+[
+  {
+    "doi": "10.1016/j.buildenv.2025.113372",
+    "pdf": "/mnt/d/paper/EasyRead/0a3b0b60d068/source.pdf",
+    "sha256": "0a3b0b60d068c81326646b11b95edea41825e39c85d8f572657f498cf1667152",
+    "pages_read": [
+      4,
+      5,
+      6,
+      7,
+      9
+    ],
+    "source": "user local original PDF + original-language page extraction"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2024.111537",
+    "pdf": "/mnt/d/paper/EasyRead/4f30c7012b28/source.pdf",
+    "sha256": "4f30c7012b2879a7499bb05e3bace1ec771103c3d3ed887606f6a93cc2b6b930",
+    "pages_read": [
+      3,
+      6,
+      7,
+      10
+    ],
+    "source": "user local original PDF + original-language page extraction"
+  }
+]

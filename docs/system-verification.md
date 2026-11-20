@@ -72,8 +72,25 @@ and the control host was not reached, so the cloud tiers remain uncompared.
   and `lab/common.py` match none of the copies in this tree. The deployed vision Supervisor
   configuration also runs a `dataset-api` program that has no counterpart under `vision/deploy/`.
 
-This repository is therefore a local source snapshot, not the deployed revision. Capturing the live
-Pi tree and the cloud tiers is still outstanding.
+This repository is therefore a local source snapshot, not the deployed revision. The captured
+device tree is archived under [`deployments/pi-20261120/`](../deployments/pi-20261120/) and the
+full comparison, including every differing file, is in
+[`pi-diff-20261120.md`](pi-diff-20261120.md). Capturing the cloud tiers is still outstanding.
+
+## Cloud tier records (hashes only, no source)
+
+- The GPU host was redeployed on 2026-11-10 behind `connect.nmb2.seetacloud.com:12434` (the
+  earlier instance was `nmb1:17005`), running two Supervisor groups with five programs under
+  `/root/abc20261102`; the record is `01_交接与回执/GPU重部署记录_20261110.md` in the archive.
+- On 2026-11-16 a baseline captured SHA-256 digests for 15 GPU files plus `deploy/supervisord.ini`,
+  `config.json`, `requirements-runtime.txt` and `assets/export_manifest.json`
+  (archive `05_实测结果/baseline_20261116_1643/`).
+- Comparing those digests with this tree: 7 of the 12 files that also exist here are identical;
+  `lab/common.py`, `lab/local_preview.py`, `lab/presentation.py`, `lab/vision.py` and
+  `lab/worker.py` differ. The GPU therefore ran a variant distinct from both the Pi and every copy
+  in this repository.
+- On 2026-11-20 both recorded GPU ports refused connections, so the cloud source could not be
+  captured. Digests cannot reconstruct source; a running host is required.
 
 ## Audio launch configuration gaps
 

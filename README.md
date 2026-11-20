@@ -68,8 +68,11 @@ thermal-lab/
 │   ├── vision-extension/        # later partial vision snapshot (dataset APIs, monitoring)
 │   ├── environment-longterm/    # alternative gateway with long-term storage
 │   └── collaboration/           # collaboration bundle (overlay on the base vision tree)
+├── deployments/                 # Read-only archive of what a device actually ran
+│   └── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
 ├── docs/
 │   ├── system-verification.md   # test evidence, worker identities, gaps
+│   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
 │   ├── environment-gateway.md   # gateway behaviour and worked example
 │   └── README.md                # review entry point per role
 ├── .github/workflows/tests.yml  # CI: five suites on Linux
