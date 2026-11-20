@@ -9,14 +9,19 @@ modified. Sanitised archives live under `deployments/`.
 | GPU cloud | `root@connect.nmb2.seetacloud.com:31380` | source, Supervisor config, vendor code | `deployments/gpu-20261120/` (41 files) |
 | Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `deployments/control-20261120/` (69 files) |
 
-## Service state observed
+## Service state observed (2026-11-20 ~21:55)
 
 - **GPU** — container `db94499d91`, RTX 3090 24 GB, project `/root/abc20261102`, five Supervisor
   programs RUNNING: `vision-cloud`, `llm-adapter`, `ollama`, `mqtt-tunnel`, `media-broker`.
-- **Pi** — Caddy LAN console on `:28880`; vision edge `:28990`; data plane `:28992`; console tunnel
-  `:28881`. Audio runs `audio-edge`, `audio-gateway`, `audio-profile`; environment `env-gateway`.
-- **Control host** — broker and Node-RED console under systemd; Node-RED user dir
-  `/srv/abc20261102/state/node-red`.
+- **Pi** — vision Supervisor runs six programs RUNNING: `vision-edge`, `console-gateway`,
+  `console-tunnel`, `dataset-api`, `media-tunnel`, `mqtt-tunnel`. Audio `edge.py` and the Caddy
+  gateway process are running, with the `audio-profile` program configured; the environment
+  gateway runs from the vision virtualenv and listens on `:28984`. Listening sockets observed:
+  `:28880` (Caddy), `:28990` (vision edge), `:28992` (data plane), `:28881` (console tunnel),
+  `:28883` (MQTT tunnel), `:28583` (media transport), `:28984` (environment). Two further
+  listeners, `:28980` and `:28991`, were observed but are not attributed to a component here.
+- **Control host** — `abc20261102-broker`, `abc20261102-console` and `abc20261102-gpu-ensure.timer`
+  are active; `:28880` is listening; Node-RED user dir `/srv/abc20261102/state/node-red`.
 
 ## Vision package: four deployments, five worker builds
 
