@@ -48,3 +48,23 @@ Hosts and account names use the same example substitutions as the Pi archive.
 
 The front-end comparison between the repository, the control host and the Pi is in
 [`../docs/frontend-20261120.md`](../docs/frontend-20261120.md).
+
+## `gpu-20261120/`
+
+Captured read-only from the GPU instance (`root@connect.nmb2.seetacloud.com:31380`, container
+`db94499d91`) on 2026-11-20:
+
+| Path in the archive | GPU path |
+|---|---|
+| `lab/` | `/root/abc20261102/lab` — extended vision package, 28 files |
+| `deploy/` | Supervisor configuration, media broker config, tracking config |
+| `vendor/` | tracking and temporal-action algorithm sources |
+| `tools/` | the single native start script |
+| `PROVENANCE.json` | build provenance recorded on the instance |
+
+41 files. Excluded: `config.json`, `assets/` (weights and NCNN exports), `data/`, `state/`,
+`results/`, `logs/`, `runtime/` and virtual environments. The same substitutions apply; the SSH
+port was normalised to `22`.
+
+The four-way comparison of the vision package across the repository, the Pi, the GPU and the
+control host is in [`../docs/deployments-20261120.md`](../docs/deployments-20261120.md).

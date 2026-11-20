@@ -77,30 +77,24 @@ device tree is archived under [`deployments/pi-20261120/`](../deployments/pi-202
 full comparison, including every differing file, is in
 [`pi-diff-20261120.md`](pi-diff-20261120.md). Capturing the cloud tiers is still outstanding.
 
-## Cloud tier records (hashes only, no source)
+## Cloud tiers (captured 2026-11-20)
 
-- The GPU host was redeployed on 2026-11-10 behind `connect.nmb2.seetacloud.com:12434` (the
-  earlier instance was `nmb1:17005`), running two Supervisor groups with five programs under
-  `/root/abc20261102`; the record is `01_交接与回执/GPU重部署记录_20261110.md` in the archive.
-- On 2026-11-16 a baseline captured SHA-256 digests for 15 GPU files plus `deploy/supervisord.ini`,
-  `config.json`, `requirements-runtime.txt` and `assets/export_manifest.json`
-  (archive `05_实测结果/baseline_20261116_1643/`).
-- Comparing those digests with this tree: 7 of the 12 files that also exist here are identical;
-  `lab/common.py`, `lab/local_preview.py`, `lab/presentation.py`, `lab/vision.py` and
-  `lab/worker.py` differ. The GPU therefore ran a variant distinct from both the Pi and every copy
-  in this repository.
-- On 2026-11-20 both recorded GPU ports refused connections, so the GPU source could not be
-  captured. Digests cannot reconstruct source; a running host is required.
-- The control host **was** reached read-only on 2026-11-20: its Node-RED deployment, systemd units,
-  console files and code are archived under `deployments/control-20261120/`, and the front-end
-  comparison is in [`frontend-20261120.md`](frontend-20261120.md). The deployed `flows-native.json`
+- **GPU** was reached read-only at `root@connect.nmb2.seetacloud.com:31380` (container
+  `db94499d91`, RTX 3090): `/root/abc20261102` with five Supervisor programs RUNNING
+  (`vision-cloud`, `llm-adapter`, `ollama`, `mqtt-tunnel`, `media-broker`). Its source is archived
+  under `deployments/gpu-20261120/` (41 files).
+- **Control host** was reached read-only; its Node-RED deployment, units, console files and code
+  are archived under `deployments/control-20261120/` (69 files). The deployed `flows-native.json`
   (2026-11-17) is newer than the copy in this repository.
-- Control-host `lab/` holds 10 files: 5 are identical to this tree (`__init__.py`, `camera.py`,
-  `llm.py`, `posture.py`, `result_codec.py`) and `common.py`, `local_preview.py`,
-  `presentation.py`, `vision.py`, `worker.py` differ from every copy here. Its `local_preview.py`
-  matches the GPU baseline digest, while the Pi runs the extended variant, so the three tiers were
-  not in lockstep. `tools/` carries 25 of the 42 tool files in this repository and `tests/` a
-  single contract test.
+- **Four-way vision comparison** — the repository, the Pi, the GPU and the control host — is in
+  [deployments-20261120.md](deployments-20261120.md). The Pi and GPU run the same extended build
+  apart from `worker.py` and `llm.py`; the control host runs an older base build with its own
+  edits; this repository holds the base build, and `revisions/vision-extension/` matches the Pi and
+  GPU for 18 of the 28 files (the exception is `worker.py`).
+- Five distinct `worker.py` builds have been observed: the repository copy, the Pi, the GPU, the
+  control host, and the 2026-11-16 GPU baseline (`c40d2040`). The file name identifies none.
+- The 2026-11-16 baseline (`05_实测结果/baseline_20261116_1643/`) remains the only record of the
+  previous GPU instance, which was unreachable on every recorded port until 2026-11-20 21:46.
 
 ## Audio launch configuration gaps
 

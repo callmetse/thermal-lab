@@ -70,9 +70,11 @@ thermal-lab/
 │   └── collaboration/           # collaboration bundle (overlay on the base vision tree)
 ├── deployments/                 # Read-only archive of what a device actually ran
 │   ├── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
+│   ├── gpu-20261120/            # GPU instance source capture (extended vision package)
 │   └── control-20261120/        # Control-host code, Node-RED flows, units and console files
 ├── docs/
 │   ├── system-verification.md   # test evidence, worker identities, gaps
+│   ├── deployments-20261120.md  # what each tier runs; four-way vision comparison
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
 │   ├── frontend-20261120.md     # experiment bench: routes and deployed front-end files
 │   ├── environment-gateway.md   # gateway behaviour and worked example
@@ -182,6 +184,7 @@ manifests.
 | `vision/tools/deploy_ui_d.py` | withheld: contains a plaintext console password and a local secret-store path | excluded rather than shipping a working credential |
 | Deployed vision differs from this tree | the Pi runs extended modules plus a `dataset-api` program; 26 files differ in content | see `docs/system-verification.md` before treating `vision/` as the deployed source |
 | Front-end bench not current | repository `page.html` is a 2026-11-16 local edit (52 KB) while both devices serve the 2026-11-03 page (35 KB); the control host's `flows-native.json` (2026-11-17, 102 KB) is newer than the repository copy | neither tree is authoritative for every file; see `docs/frontend-20261120.md` |
+| Vision build drift | four deployments, five `worker.py` builds: the Pi and GPU share the extended package except `worker.py`/`llm.py`, the control host runs an older base build | reconcile before any overlay; see `docs/deployments-20261120.md` |
 
 ## 🔍 Evidence Status
 
@@ -189,9 +192,9 @@ manifests.
 |---|---|
 | Source imports; five suites pass locally and in CI | ✅ 2026-11-20, Python 3.13 (Windows) and 3.12 (Ubuntu) |
 | No credentials in the tree or history | ✅ gitleaks 8.30.1, no leaks |
-| Source equals the deployed revision | ❌ false for the Pi: 26 files differ in content, deployed vision is a hybrid build (2026-11-20); GPU and control hosts unverified |
+| Source equals the deployed revision | ❌ false on all three tiers (2026-11-20): Pi differs in 26 files, GPU and control run other vision builds, five distinct `worker.py` variants exist |
 | Deployed revision equals the running process | ⬜ unverified |
-| Pi capture, ESP32 firmware, Node-RED import, GPU runtime | ⬜ unverified; the Pi was read-only inspected on 2026-11-20 |
+| Pi capture, ESP32 firmware, Node-RED import, GPU runtime | ⬜ unverified; all three tiers were read-only inspected on 2026-11-20 |
 
 ## 🤝 Contributing
 
