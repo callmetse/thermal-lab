@@ -91,10 +91,16 @@ full comparison, including every differing file, is in
   in this repository.
 - On 2026-11-20 both recorded GPU ports refused connections, so the GPU source could not be
   captured. Digests cannot reconstruct source; a running host is required.
-- The control host **was** reached read-only on 2026-11-20: its Node-RED deployment, systemd units
-  and console files are archived under `deployments/control-20261120/`, and the front-end
+- The control host **was** reached read-only on 2026-11-20: its Node-RED deployment, systemd units,
+  console files and code are archived under `deployments/control-20261120/`, and the front-end
   comparison is in [`frontend-20261120.md`](frontend-20261120.md). The deployed `flows-native.json`
   (2026-11-17) is newer than the copy in this repository.
+- Control-host `lab/` holds 10 files: 5 are identical to this tree (`__init__.py`, `camera.py`,
+  `llm.py`, `posture.py`, `result_codec.py`) and `common.py`, `local_preview.py`,
+  `presentation.py`, `vision.py`, `worker.py` differ from every copy here. Its `local_preview.py`
+  matches the GPU baseline digest, while the Pi runs the extended variant, so the three tiers were
+  not in lockstep. `tools/` carries 25 of the 42 tool files in this repository and `tests/` a
+  single contract test.
 
 ## Audio launch configuration gaps
 

@@ -70,7 +70,7 @@ thermal-lab/
 │   └── collaboration/           # collaboration bundle (overlay on the base vision tree)
 ├── deployments/                 # Read-only archive of what a device actually ran
 │   ├── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
-│   └── control-20261120/        # Control-host Node-RED flows, units and console files
+│   └── control-20261120/        # Control-host code, Node-RED flows, units and console files
 ├── docs/
 │   ├── system-verification.md   # test evidence, worker identities, gaps
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi

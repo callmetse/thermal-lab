@@ -1,0 +1,186 @@
+[
+  {
+    "doi": "10.1016/j.buildenv.2022.109345",
+    "type": "journal-article",
+    "title": [
+      "Deep-vision-based metabolic rate and clothing insulation estimation for occupant-centric control"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2022,
+          8
+        ]
+      ]
+    },
+    "volume": "221",
+    "article_number": "109345",
+    "url": "https://doi.org/10.1016/j.buildenv.2022.109345",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2024.111299",
+    "type": "journal-article",
+    "title": [
+      "Performance evaluation of an occupant metabolic rate estimation algorithm using activity classification and object detection models"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2024,
+          3
+        ]
+      ]
+    },
+    "volume": "252",
+    "article_number": "111299",
+    "url": "https://doi.org/10.1016/j.buildenv.2024.111299",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2024.111277",
+    "type": "journal-article",
+    "title": [
+      "Real-time clothing insulation level classification based on model transfer learning and computer vision for PMV-based heating system optimization through piecewise linearization"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2024,
+          4
+        ]
+      ]
+    },
+    "volume": "253",
+    "article_number": "111277",
+    "url": "https://doi.org/10.1016/j.buildenv.2024.111277",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2024.111537",
+    "type": "journal-article",
+    "title": [
+      "Vision-based multi-label detection framework for capturing occupant action and clothing information using large-scale dataset"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2024,
+          6
+        ]
+      ]
+    },
+    "volume": "257",
+    "article_number": "111537",
+    "url": "https://doi.org/10.1016/j.buildenv.2024.111537",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2024.112178",
+    "type": "journal-article",
+    "title": [
+      "Occupant activities and clothes detection based on semi-supervised learning for occupant-centric thermal control"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          1
+        ]
+      ]
+    },
+    "volume": "267",
+    "article_number": "112178",
+    "url": "https://doi.org/10.1016/j.buildenv.2024.112178",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2025.113372",
+    "type": "journal-article",
+    "title": [
+      "Dynamic detection models for clothing insulation and metabolic rate based on computer vision"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          9
+        ]
+      ]
+    },
+    "volume": "283",
+    "article_number": "113372",
+    "url": "https://doi.org/10.1016/j.buildenv.2025.113372",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.enbuild.2025.115779",
+    "type": "journal-article",
+    "title": [
+      "A visual prediction method for individual metabolic rate by integrating movement speed and physiological characteristics"
+    ],
+    "journal": [
+      "Energy and Buildings"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          8
+        ]
+      ]
+    },
+    "volume": "340",
+    "article_number": "115779",
+    "url": "https://doi.org/10.1016/j.enbuild.2025.115779",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  },
+  {
+    "doi": "10.1016/j.buildenv.2026.114408",
+    "type": "journal-article",
+    "title": [
+      "Benchmarking zero-shot vision-language models against supervised learning for concurrent metabolic rate and clothing insulation estimation"
+    ],
+    "journal": [
+      "Building and Environment"
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2026,
+          4
+        ]
+      ]
+    },
+    "volume": "294",
+    "article_number": "114408",
+    "url": "https://doi.org/10.1016/j.buildenv.2026.114408",
+    "verified": "Crossref metadata",
+    "checked": "2026-11-02"
+  }
+]

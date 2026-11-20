@@ -36,11 +36,15 @@ Captured read-only from the control host (the broker and Node-RED console) on 20
 |---|---|
 | `deploy/nodered/` | `/srv/abc20261102/deploy/nodered` — Node-RED flows, page and settings |
 | `deploy/` | systemd units, `console.Caddyfile`, compose files, bootstrap scripts |
+| `lab/` | the vision package subset the control host runs (10 files) |
+| `tests/` | the single contract test present on the host |
+| `tools/` | 25 of the tool scripts present on the host |
+| `research/` | the notes that were never imported into a source tree |
 | `README.md`, `PROVENANCE.json`, `requirements-runtime.txt`, `package.json` | service root |
 
-Excluded: `config.json`, `node_modules/`, `state/` runtime data (batches, logs, Node-RED library),
-`package-lock.json`, and Node-RED's `.config.runtime.json` credential secret. Hosts and account
-names use the same example substitutions as the Pi archive.
+69 files in total. Excluded: `config.json`, `node_modules/`, `state/` runtime data (batches, logs,
+Node-RED library), `package-lock.json`, and Node-RED's `.config.runtime.json` credential secret.
+Hosts and account names use the same example substitutions as the Pi archive.
 
 The front-end comparison between the repository, the control host and the Pi is in
 [`../docs/frontend-20261120.md`](../docs/frontend-20261120.md).
