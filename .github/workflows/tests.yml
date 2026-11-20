@@ -1,0 +1,48 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Environment gateway (35 tests)
+        run: python -m unittest discover -s environment/tests -v
+
+      - name: Environment long-term revision (36 tests)
+        run: python -m unittest discover -s revisions/environment-longterm/tests -v
+
+      - name: Audio (67 tests, 5 skipped without GPU-host models)
+        working-directory: acoustic
+        run: python -m unittest discover -s tests -v
+
+      - name: Vision (122 tests)
+        run: |
+          cp vision/config.example.json vision/config.json
+          cd vision
+          python -m unittest discover -s tests -v
+
+      - name: Collaboration overlay (71 tests)
+        working-directory: revisions/collaboration
+        env:
+          PYTHONPATH: ${{ github.workspace }}/vision
+        run: python -m unittest discover -s tests -v

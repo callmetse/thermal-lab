@@ -1,0 +1,5 @@
+# Dependencies for the test suites only.
+# Component runtime dependencies live next to each component:
+# environment/requirements.txt, vision/requirements-runtime.txt, acoustic/requirements-runtime.txt.
+aiohttp==3.14.5
+numpy
