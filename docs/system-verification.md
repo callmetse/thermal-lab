@@ -20,6 +20,10 @@ device, broker, GPU or production database was contacted.
 
 331 tests ran, 5 were skipped, none failed.
 
+The same five suites were re-run on Ubuntu 24.04 with Python 3.12.3 (`aiohttp` 3.14.5, `numpy`
+1.26.4) from the same commit: identical counts, 0 failures. `.github/workflows/tests.yml` runs
+them on Python 3.12 and 3.13 for every push and pull request.
+
 Notes on the run:
 
 - Vision requires a local `config.json`; `config.example.json` is the documented template and
