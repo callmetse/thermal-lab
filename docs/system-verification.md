@@ -95,6 +95,9 @@ full comparison, including every differing file, is in
   control host, and the 2026-11-16 GPU baseline (`c40d2040`). The file name identifies none.
 - The 2026-11-16 baseline (`05_实测结果/baseline_20261116_1643/`) remains the only record of the
   previous GPU instance, which was unreachable on every recorded port until 2026-11-20 21:46.
+- The GPU SSH endpoint is **not stable**: AutoDL assigns a new port (and sometimes a different
+  relay host) on every boot — 12434 → 23860 → 33009 → 31380 across these records. Treat the
+  endpoint in any snapshot as timestamped evidence; see [gpu-endpoint.md](gpu-endpoint.md).
 
 ## Audio launch configuration gaps
 

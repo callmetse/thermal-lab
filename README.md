@@ -75,6 +75,7 @@ thermal-lab/
 ├── docs/
 │   ├── system-verification.md   # test evidence, worker identities, gaps
 │   ├── deployments-20261120.md  # what each tier runs; four-way vision comparison
+│   ├── gpu-endpoint.md          # why the GPU SSH port changes on every boot
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
 │   ├── frontend-20261120.md     # experiment bench: routes and deployed front-end files
 │   ├── environment-gateway.md   # gateway behaviour and worked example
