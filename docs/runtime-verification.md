@@ -43,7 +43,7 @@ Supporting checks:
 ## What this proves, and what it does not
 
 **Proved:** the services listed above are executing the same bytes that are on the device now and in
-`deployments/` — the chain *archive = disk = loaded image* holds for them, because no file was
+`sources/` — the chain *archive = disk = loaded image* holds for them, because no file was
 written after the process started.
 
 **Not proved:**

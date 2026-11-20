@@ -1,6 +1,14 @@
-# Deployed snapshots
+# Per-tier source trees
 
-Archive copies of source that was running on a device, kept separate from the review tree.
+The complete source captured from each device, one directory per tier. These are the reference
+copies: read them, compare against them, but do not edit them — the editable tree is at the
+repository root (`vision/`, `acoustic/`, `environment/`), which carries the newest observed build.
+
+| Tier | Directory | Files | Note |
+|---|---|---|---|
+| Raspberry Pi | `pi-20261120/` | 152 | includes the Pi's own `worker.py` and `llm.py` (10:55 build) |
+| GPU | `gpu-20261120/` | 41 | matches the root trees byte for byte |
+| Control host | `control-20261120/` | 69 | older base build plus its own edits |
 
 ## `pi-20261120/`
 
@@ -24,6 +32,9 @@ What the archive removes before committing:
 
 `SHA256SUMS` lists the archived files as committed here, not the raw device files. The device
 hashes measured at capture time are in [`../docs/pi-diff-20261120.md`](../docs/pi-diff-20261120.md).
+
+Links inside a captured README may point at files that were not part of the capture (weights,
+recordings, local notes); they are kept as they were on the device.
 
 **Do not edit this directory.** It is evidence of what the device ran; changes belong in
 `environment/`, `vision/` or `acoustic/`, with the reconciliation described in the diff report.

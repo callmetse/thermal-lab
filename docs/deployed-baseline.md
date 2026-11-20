@@ -9,14 +9,14 @@ trees now hold what the devices actually run:
 | `acoustic/` | the audio modules that run on the Pi | `/home/pi/mm_audio_v1` |
 | `environment/` | the environment gateway and its long-term module | `/home/pi/env_sensor_v1` (including `env_longterm.py`, which the deployed gateway imports) |
 
-Read the code exactly as it runs; the `deployments/` archives remain the read-only evidence copies,
+Read the code exactly as it runs; the `sources/` archives remain the read-only evidence copies,
 and the sanitised device snapshots are still the reference for "what was on disk at capture time".
 
 ## What was archived
 
 The GPU's `worker.py` and `llm.py` are three hours newer than the Pi's and everything else is
 identical, so the repository now carries the newest observed build; the Pi lags by exactly those two
-files, and its own pair stays in `deployments/pi-20261120/`.
+files, and its own pair stays in `sources/pi-20261120/`.
 
 The previous base trees are kept for comparison under `revisions/vision-base-20261120/`:
 
@@ -28,7 +28,7 @@ The previous base trees are kept for comparison under `revisions/vision-base-202
 
 The GPU and control hosts still carry variants of their own: the GPU differs from this tree in
 `lab/worker.py` and `lab/llm.py`, and the control host runs an older base build. See
-[deployments-20261120.md](deployments-20261120.md); those variants stay in `deployments/`.
+[deployments-20261120.md](deployments-20261120.md); those variants stay in `sources/`.
 
 ## Tests
 
@@ -63,6 +63,6 @@ bytes is in [runtime-verification.md](runtime-verification.md).
 
 ## What did not change
 
-- The device snapshots under `deployments/` are untouched.
+- The device snapshots under `sources/` are untouched.
 - Hosts, ports and account names remain example values; no credentials were introduced.
 - The repository still does not contain weights, databases, recordings or `config.json`.

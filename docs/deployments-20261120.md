@@ -1,13 +1,13 @@
 # What each tier runs (2026-11-20)
 
 Read-only captures of the three online tiers, taken on 2026-11-20. Nothing on any device was
-modified. Sanitised archives live under `deployments/`.
+modified. Sanitised archives live under `sources/`.
 
 | Tier | Entry | Captured | Archive |
 |---|---|---|---|
-| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `deployments/pi-20261120/` (152 files + `SHA256SUMS`, re-captured 22:32 JST) |
-| GPU cloud | `root@connect.nmb2.seetacloud.com:31380` — port valid on 2026-11-20 only; it changes on every boot, see [gpu-endpoint.md](gpu-endpoint.md) | source, Supervisor config, vendor code | `deployments/gpu-20261120/` (41 files + `SHA256SUMS`) |
-| Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `deployments/control-20261120/` (69 files + `SHA256SUMS`) |
+| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `sources/pi-20261120/` (152 files + `SHA256SUMS`, re-captured 22:32 JST) |
+| GPU cloud | `root@connect.nmb2.seetacloud.com:31380` — port valid on 2026-11-20 only; it changes on every boot, see [gpu-endpoint.md](gpu-endpoint.md) | source, Supervisor config, vendor code | `sources/gpu-20261120/` (41 files + `SHA256SUMS`) |
+| Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `sources/control-20261120/` (69 files + `SHA256SUMS`) |
 
 ## Service state observed (2026-11-20 ~21:55)
 

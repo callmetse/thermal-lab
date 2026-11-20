@@ -14,9 +14,9 @@ of `vision/lab/` is identical on the Pi and the GPU.
   package, the Pi's 50 source files are unchanged since capture, 330 local tests pass (12 skipped,
   reasons in code) and CI is green.
 - **Still different**: the Pi runs the previous pair of `worker.py`/`llm.py` (written 10:55) — its full
-  tree is [`deployments/pi-20261120/`](deployments/pi-20261120/); the control host runs an older base
-  build — [`deployments/control-20261120/`](deployments/control-20261120/); the GPU tree that matches
-  this repository is [`deployments/gpu-20261120/`](deployments/gpu-20261120/).
+  tree is [`sources/pi-20261120/`](sources/pi-20261120/); the control host runs an older base
+  build — [`sources/control-20261120/`](sources/control-20261120/); the GPU tree that matches
+  this repository is [`sources/gpu-20261120/`](sources/gpu-20261120/).
 - The ESP32 exists only as an ESPHome definition (not built or flashed); deployment scripts are
   historical — re-check host paths.
 - Hosts, accounts and ports are example values, so a local copy cannot reach the real devices.
@@ -79,7 +79,7 @@ thermal-lab/
 │   ├── vision-extension/        # later partial vision snapshot (dataset APIs, monitoring)
 │   ├── environment-longterm/    # alternative gateway with long-term storage
 │   └── collaboration/           # collaboration bundle (overlay on the base vision tree)
-├── deployments/                 # Read-only archive of what a device actually ran
+├── sources/                 # Complete source tree per device (read-only reference)
 │   ├── pi-20261120/             # Pi source capture, 2026-11-20 (sanitised, with SHA256SUMS)
 │   ├── gpu-20261120/            # GPU instance source capture (extended vision package)
 │   └── control-20261120/        # Control-host code, Node-RED flows, units and console files

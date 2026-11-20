@@ -76,7 +76,7 @@ and the control host was not reached, so the cloud tiers remain uncompared.
 
 At the time of that comparison the repository still carried the base build; it now carries the Pi
 build (see [deployed-baseline.md](deployed-baseline.md)). The device tree is archived under
-[`deployments/pi-20261120/`](../deployments/pi-20261120/) and the per-file record is in
+[`sources/pi-20261120/`](../sources/pi-20261120/) and the per-file record is in
 [`pi-diff-20261120.md`](pi-diff-20261120.md). GPU and control were captured later — see
 [deployments-20261120.md](deployments-20261120.md).
 
@@ -85,9 +85,9 @@ build (see [deployed-baseline.md](deployed-baseline.md)). The device tree is arc
 - **GPU** was reached read-only at `root@connect.nmb2.seetacloud.com:31380` (container
   `db94499d91`, RTX 3090): `/root/abc20261102` with five Supervisor programs RUNNING
   (`vision-cloud`, `llm-adapter`, `ollama`, `mqtt-tunnel`, `media-broker`). Its source is archived
-  under `deployments/gpu-20261120/` (41 files).
+  under `sources/gpu-20261120/` (41 files).
 - **Control host** was reached read-only; its Node-RED deployment, units, console files and code
-  are archived under `deployments/control-20261120/` (69 files). The deployed `flows-native.json`
+  are archived under `sources/control-20261120/` (69 files). The deployed `flows-native.json`
   (2026-11-17) is newer than the copy in this repository.
 - **Four-way vision comparison** — the repository, the Pi, the GPU and the control host — is in
   [deployments-20261120.md](deployments-20261120.md). The Pi and GPU run the same extended build

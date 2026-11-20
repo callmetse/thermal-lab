@@ -11,7 +11,7 @@ script or snapshot is only valid for that capture. Do not hard-code it.
 | until 2026-11-10 | `connect.nmb2.seetacloud.com` | 12434 | `GPU重部署记录_20261110.md` |
 | 2026-11-16 morning | `connect.nmb1.seetacloud.com` | 23860 | `SSH记录_实例台账_20261116.md` §6 |
 | 2026-11-16 15:00 | `connect.nmb1.seetacloud.com` | 33009 | same ledger, §1 and §2.4 |
-| 2026-11-20 21:46 | `connect.nmb2.seetacloud.com` | 31380 | capture in `deployments/gpu-20261120/` |
+| 2026-11-20 21:46 | `connect.nmb2.seetacloud.com` | 31380 | capture in `sources/gpu-20261120/` |
 
 `connect.nmb1.seetacloud.com:17005` and the key `autodl_yolo_17005` belong to a **different**
 experiment instance and are not part of this project.
@@ -43,5 +43,5 @@ None of these is a connection string; the port still has to be looked up.
   `31380`.
 - When the port changes, both the Pi `media-tunnel` and the control-host `gpu-ensure` service must
   be updated, or the media path and the auto-recovery path break.
-- A snapshot under `deployments/` records what was running **at capture time**; it does not imply
+- A snapshot under `sources/` records what was running **at capture time**; it does not imply
   the instance is reachable now.
