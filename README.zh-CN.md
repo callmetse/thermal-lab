@@ -6,7 +6,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 
 ## ⚠️ 项目状态
 
-本仓库是**源码评审快照**，不是已发布系统。本地测试全部通过，但**尚未验证任何一台设备跑的就是这份代码**；部署脚本属于历史材料，使用前请逐条核对主机路径。
+本仓库是**源码评审快照**，不是已发布系统。本地测试全部通过，但**尚未验证任何一台设备跑的就是这份代码**：2026-11-20 对树莓派做了只读比对，89 个可比文件里 26 个内容不同，设备上跑的是混合构建；GPU 与控制云当时连不上，未比对。部署脚本属于历史材料，使用前请逐条核对主机路径。
 
 ## 一、这个仓库是什么
 
@@ -33,20 +33,23 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 
 | 路径 | 行数 | SHA-256（前 16 位） | 身份 |
 |---|---|---|---|
-| `vision/lab/worker.py` | 805 | `183c179a43ae4c04` | 基础版视觉 |
-| `revisions/vision-extension/lab/worker.py` | 1074 | `12a305ada8d35fad` | 历史扩展版视觉 |
-| `revisions/collaboration/worker.py` | 761 | `dfcf77d66dd643e2` | 协作补丁包变体 |
-| `acoustic/worker.py` | 425 | `dc1f186087bc2930` | 音频云端推理（另一子系统） |
+| `vision/lab/worker.py` | 805 | `fe10e1e8d14b1c5f` | 基础版视觉 |
+| `revisions/vision-extension/lab/worker.py` | 1074 | `4b277770d4b58f13` | 历史扩展版视觉 |
+| `revisions/collaboration/worker.py` | 761 | `026d06a8824b44e9` | 协作补丁包变体 |
+| `acoustic/worker.py` | 425 | `c4bf1ab017a0d572` | 音频云端推理（另一子系统） |
+
+摘要取**提交里的内容**（LF 换行），和 GitHub 上直接下载的文件一致；早先在 Windows 工作区算出的值不同，比对时以上表为准。Pi 现网的实际版本与这四份都不一样，见 [docs/system-verification.md](docs/system-verification.md) 的"Pi 现网比对"一节。
 
 ## 三、已知缺口（需要确认或补材料）
 
 | 缺口 | 现状 | 影响 |
 |---|---|---|
-| `setup_capture.sh` | 所有源码目录均无此文件，只在归档模板和台账里被引用 | 音频采集前的 profile 步骤无法复现 |
-| `gateway.sh` | 由 `acoustic/deploy.py` 部署时生成，依赖仓外的 `console-auth.env` 与控制云 Caddy | 网关程序无法只凭本仓库复现 |
+| `setup_capture.sh` | **在 Pi 上找到了**（`/home/pi/mm_audio_v1/setup_capture.sh`，2026-11-20 读取），但所有源码目录都没有 | 采集 profile 步骤只能从设备上取回，仓库还复现不了 |
+| `gateway.sh` | 由 `acoustic/deploy.py` 部署时生成；生成的这份存在 Pi 上 | 网关程序无法只凭本仓库复现（依赖仓外 `console-auth.env` 与控制云 Caddy） |
 | `utt_listener.py` 路径 | 源码在 `acoustic/tools/`，启动脚本从服务根目录启动 | 部署时须复制或改启动路径 |
-| 模板 vs 生成器 | 归档模板比 `deploy.py` 生成的多一个 `audio-profile` 程序 | 无法确定设备上装的是哪一份 |
+| 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
 | `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
+| 现网视觉与仓库不一致 | Pi 上跑的是混合构建（扩展模块 + `dataset-api` 服务），26 个文件内容不同 | 详见 `docs/system-verification.md`，不能把 `vision/` 当成现网源码 |
 
 ## 四、本地怎么跑（小白 3 分钟版）
 
