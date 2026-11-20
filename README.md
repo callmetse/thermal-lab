@@ -93,6 +93,7 @@ thermal-lab/
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
 │   ├── runtime-verification.md  # do the devices run the captured bytes?
 │   ├── frontend-20261120.md     # experiment bench: routes and deployed front-end files
+│   ├── figures/                 # architecture diagram and bench screenshots
 │   ├── environment-gateway.md   # gateway behaviour and worked example
 │   └── README.md                # review entry point per role
 ├── .github/workflows/tests.yml  # CI: five suites on Linux

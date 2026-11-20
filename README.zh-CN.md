@@ -28,7 +28,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `sources/pi-20261120/` | **Pi 现网快照**（2026-11-20 只读取回、已脱敏，含 SHA256SUMS）；只读参考，不要改 |
 | `sources/gpu-20261120/` | **GPU 现网快照**（扩展版 lab 包、deploy、vendor，脱敏后 41 个文件） |
 | `sources/control-20261120/` | **控制云快照**（lab 代码、Node-RED flows、systemd、Caddyfile 等，脱敏后 69 个文件） |
-| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比，`docs/deployments-20261120.md` 是四端视觉包的对比，`docs/gpu-endpoint.md` 说明 GPU 端口每次开机都会变，`docs/architecture.md` 与 `docs/figures/abcd-architecture.png` 是 A/B/C/D 四方案共享云侧的结构图，`docs/runtime-verification.md` 证明设备进程跑的就是快照里的字节 |
+| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比，`docs/deployments-20261120.md` 是四端视觉包的对比，`docs/gpu-endpoint.md` 说明 GPU 端口每次开机都会变，`docs/architecture.md` 与 `docs/figures/abcd-architecture.png` 是 A/B/C/D 四方案共享云侧的结构图，`docs/runtime-verification.md` 证明设备进程跑的就是快照里的字节；`docs/figures/bench/` 是实验台（`/lab` 待命与运行中、`/data` 数据页）的实拍截图 |
 
 先读这两份：
 
