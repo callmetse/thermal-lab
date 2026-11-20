@@ -5,7 +5,7 @@ modified. Sanitised archives live under `deployments/`.
 
 | Tier | Entry | Captured | Archive |
 |---|---|---|---|
-| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `deployments/pi-20261120/` (149 files + `SHA256SUMS`) |
+| Raspberry Pi | `pi@192.168.5.8` (SSH), `http://192.168.5.8:28880` | source, Supervisor configs, console files | `deployments/pi-20261120/` (152 files + `SHA256SUMS`, re-captured 22:32 JST) |
 | GPU cloud | `root@connect.nmb2.seetacloud.com:31380` — port valid on 2026-11-20 only; it changes on every boot, see [gpu-endpoint.md](gpu-endpoint.md) | source, Supervisor config, vendor code | `deployments/gpu-20261120/` (41 files + `SHA256SUMS`) |
 | Control host | `root@<control>` | Node-RED deployment, units, code, research notes | `deployments/control-20261120/` (69 files + `SHA256SUMS`) |
 
@@ -54,6 +54,10 @@ Reading:
   (`fe10e1e8`) is archived at `revisions/vision-base-20261120/`.
 - **`revisions/vision-extension/`** matches the deployed build for 18 of 28 modules; the exception is
   `worker.py`.
+
+Between the first capture (21:37) and the re-capture (22:32) the Pi's `deploy/supervisord.ini` changed its
+`media-tunnel` command from `-p 12434` to `-p 31380` (the GPU instance had moved); the archive keeps the
+re-captured file with the SSH port normalised to `22`.
 
 ## Front end
 
