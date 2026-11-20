@@ -23,7 +23,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `deployments/pi-20261120/` | **Pi 现网快照**（2026-11-20 只读取回、已脱敏，含 SHA256SUMS）；只读参考，不要改 |
 | `deployments/gpu-20261120/` | **GPU 现网快照**（扩展版 lab 包、deploy、vendor，脱敏后 41 个文件） |
 | `deployments/control-20261120/` | **控制云快照**（lab 代码、Node-RED flows、systemd、Caddyfile 等，脱敏后 69 个文件） |
-| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比，`docs/deployments-20261120.md` 是四端视觉包的对比，`docs/gpu-endpoint.md` 说明 GPU 端口每次开机都会变，`docs/architecture.md` 与 `docs/figures/abcd-architecture.png` 是 A/B/C/D 四方案共享云侧的结构图 |
+| `docs/` | 验证证据、网关说明、评审入口；`docs/pi-diff-20261120.md` 是仓库 vs Pi 的逐文件差异，`docs/frontend-20261120.md` 是前端实验台三份拷贝的对比，`docs/deployments-20261120.md` 是四端视觉包的对比，`docs/gpu-endpoint.md` 说明 GPU 端口每次开机都会变，`docs/architecture.md` 与 `docs/figures/abcd-architecture.png` 是 A/B/C/D 四方案共享云侧的结构图，`docs/runtime-verification.md` 证明设备进程跑的就是快照里的字节 |
 
 先读这两份：
 
@@ -52,6 +52,7 @@ ESP32 传感节点 · 树莓派边缘端（环境网关 / 视觉 / 音频）· G
 | `utt_listener.py` 路径 | 源码在 `acoustic/tools/`，启动脚本从服务根目录启动 | 部署时须复制或改启动路径 |
 | 模板 vs 生成器 | 归档模板与 Pi 上的 `supervisord.ini` 一致（都含 `audio-profile`）；`deploy.py` 生成的少这一项 | 生成器是旧版本，不要在已部署机器上重新生成覆盖 |
 | `vision/tools/deploy_ui_d.py` | 未收录：原文含明文控制台口令与本机密钥库路径 | 防止把可用口令带进仓库 |
+| 运行态已核实但仓库仍非部署版 | 2026-11-20 22:16 核过 7 个服务：启动时间都晚于包内最后一次写文件，Pi 文件与抓取时一致；但仓库基础版 ≠ 各端快照 | 见 `docs/runtime-verification.md`；合并仍需导师定基线 |
 | 现网视觉与仓库不一致 | Pi 上跑的是混合构建（扩展模块 + `dataset-api` 服务），26 个文件内容不同 | 详见 `docs/system-verification.md`，不能把 `vision/` 当成现网源码 |
 | 视觉代码四端不一致 | Pi 与 GPU 是扩展版（仅 `worker.py`/`llm.py` 不同），控制云是旧基础版，仓库是基础版；`worker.py` 出现了 5 个不同构建 | 任何覆盖前先按 `docs/deployments-20261120.md` 逐文件核对 |
 | 前端实验台不是最新 | 仓库 `page.html` 是 11-16 本地改的（52 KB），两台设备跑的都是 11-03 版（35 KB）；控制云 `flows-native.json`（11-17，102 KB）比仓库新 | 三份拷贝各有"最新"的部分，逐文件核对，见 `docs/frontend-20261120.md` |

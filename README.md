@@ -79,6 +79,7 @@ thermal-lab/
 │   ├── deployments-20261120.md  # what each tier runs; four-way vision comparison
 │   ├── gpu-endpoint.md          # why the GPU SSH port changes on every boot
 │   ├── pi-diff-20261120.md      # full comparison between this tree and the Pi
+│   ├── runtime-verification.md  # do the devices run the captured bytes?
 │   ├── frontend-20261120.md     # experiment bench: routes and deployed front-end files
 │   ├── environment-gateway.md   # gateway behaviour and worked example
 │   └── README.md                # review entry point per role
@@ -202,7 +203,7 @@ manifests.
 | Source imports; five suites pass locally and in CI | ✅ 2026-11-20, Python 3.13 (Windows) and 3.12 (Ubuntu) |
 | No credentials in the tree or history | ✅ gitleaks 8.30.1, no leaks |
 | Source equals the deployed revision | ❌ false on all three tiers (2026-11-20): Pi differs in 26 files, GPU and control run other vision builds, five distinct `worker.py` variants exist |
-| Deployed revision equals the running process | ⬜ unverified |
+| Deployed revision equals the running process | ✅ seven services verified on 2026-11-20 22:16: started after the last write of their package, files unchanged since capture — see `docs/runtime-verification.md` |
 | Pi capture, ESP32 firmware, Node-RED import, GPU runtime | ⬜ unverified; all three tiers were read-only inspected on 2026-11-20 |
 
 ## 🤝 Contributing
